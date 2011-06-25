@@ -17,6 +17,10 @@ main = hakyll $ do
     route idRoute
     compile copyFileCompiler
 
+  match "javascripts/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
   match "templates/*" $ compile templateCompiler
 
   match "posts/*" $ do

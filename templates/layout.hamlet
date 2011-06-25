@@ -6,14 +6,26 @@
     <link href="/feed" title="Feed for MichaelXavier.net" rel="application/atom+xml">
     <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen">
     <script src="/javascripts/application.js" type="text/javascript" charset="utf-8">
-  <body>
+  <body onload="cursorBlink(2000);">
     <div #container>
       <div #header>
         <div #lambda>
         <h1 #blog_title>
-          Michael Xavier
+          <span .michael>
+            Michael
+          <span .xavier>
+            Xavier
         <h2 #blog_tagline>
           takeWhile safeForWork thoughts >>= blog
+          <span #cursor>_
+        <h3 #links>
+          <a href="http://github.com/MichaelXavier">
+            GitHub
+          <a href="resume.pdf">
+            Resume
+          <a href="mailto:michael@michaelxavier.net">
+            Email
+
       <div #body>
         #{body}
       <div #footer>
