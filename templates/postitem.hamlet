@@ -1,0 +1,6 @@
+<li .post>
+  <div .title>
+    <a href="#{url}">#{title}
+    <div .date>
+      PUBLISHED ON HERE
+  <div .perex>#{content}

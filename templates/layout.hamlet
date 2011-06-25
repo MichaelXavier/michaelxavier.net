@@ -1,0 +1,42 @@
+!!!
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <title>#{title} -- MichaelXavier.net
+    <link href="/feed" title="Feed for MichaelXavier.net" rel="application/atom+xml">
+    <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen">
+    <script src="/javascripts/application.js" type="text/javascript" charset="utf-8">
+  <body>
+    <div .container>
+
+      <div .blog_title>
+        <h3 .tagline>
+          <span .prompt>ruby &gt;
+          thoughts.select(&amp;:sfw?).to_blog
+          <br>
+          <span .prompt>&nbsp;=&gt;
+          <span .irb_return>
+            #&lt;URI::HTTP:0x00001 URL:
+            <a href="http://MichaelXavier.net">http://MichaelXavier.net
+            &gt;
+          <br>
+          <span .prompt>ruby &gt;
+          MichaelXavier.info
+          <br>
+          <span .prompt>&nbsp;=&gt;&nbsp;
+          <span .irb_return>
+            [
+            <a href="http://github.com/MichaelXavier">GitHub
+            ,
+            <a href="/resume.pdf">Resume
+            ,
+            <a href="mailto:Michael@MichaelXavier.net">Email
+            ]
+          <br>
+          <span .prompt>ruby &gt;
+          <span .prompt id="cursor" style="display: inline; ">_
+
+      <a .image .main_rss href="/feed">
+        <img src="/images/rss.png" title="Subscribe to RSS Feed" alt="Subscribe to RSS Feed">
+
+      #{body}

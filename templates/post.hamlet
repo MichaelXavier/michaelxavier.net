@@ -1,0 +1,13 @@
+<div #article>
+  <div .post>
+    <div .title>#{title}
+    <div .meta>
+      Published on here
+    <div .categories>
+      TODO: if categories
+      <p>
+        <em>
+          Categories:
+          #{categories}
+    <div .body>
+      #{content}
