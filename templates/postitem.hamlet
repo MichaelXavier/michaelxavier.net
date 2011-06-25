@@ -1,6 +1,7 @@
 <li .post>
-  <div .title>
+  <h1 .title>
     <a href="#{url}">#{title}
-    <div .date>
-      PUBLISHED ON HERE
-  <div .perex>#{content}
+  <div .date>
+    PUBLISHED ON HERE
+  <div .post_body>
+    #{content}
