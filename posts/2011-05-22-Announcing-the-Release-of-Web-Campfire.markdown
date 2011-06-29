@@ -16,31 +16,32 @@ Campfire bot in Haskell or something, consider Web.Campfire.
 Web.Campfire runs in a monad, or particularly, inside of a ReaderT from
 Control.Monad.Reader. Below is an example program using the library:
 
-    #!sh_haskell
-    {-# LANGUAGE OverloadedStrings #-}
-    import Web.Campfire
-    import Web.Campfire.Monad
-    import Web.Campfire.Types
-    import Control.Monad.Reader
-    import Data.Text (unpack)
+~~~~~~~~~~~~~~~~~~~~ {.haskell .numberLines}
+{-# LANGUAGE OverloadedStrings #-}
+import Web.Campfire
+import Web.Campfire.Monad
+import Web.Campfire.Types
+import Control.Monad.Reader
+import Data.Text (unpack)
 
-    doStuff :: CampfireM ()
-    doStuff = do
-      (room:_) <- getRooms
-      let rid = roomId room
-      joinRoom rid
-      speak rid stmt
-      leaveRoom rid
-      return ()
-              where stmt = TextStatement { statementBody = "ATTENTION: I have nothing important to say" }
+doStuff :: CampfireM ()
+doStuff = do
+  (room:_) <- getRooms
+  let rid = roomId room
+  joinRoom rid
+  speak rid stmt
+  leaveRoom rid
+  return ()
+          where stmt = TextStatement { statementBody = "ATTENTION: I have nothing important to say" }
 
-    main :: IO ()
-    main = do
-      runReaderT (unCampfireM doStuff) env
-      me <- runReaderT (unCampfireM getMe) env
-      putStrLn "Hello, my name is:"
-      putStrLn . unpack $ userName me
-          where env  = CampfireEnv { cfKey = "MYKEY", cfSubDomain = "mysubdomain"}
+main :: IO ()
+main = do
+  runReaderT (unCampfireM doStuff) env
+  me <- runReaderT (unCampfireM getMe) env
+  putStrLn "Hello, my name is:"
+  putStrLn . unpack $ userName me
+      where env  = CampfireEnv { cfKey = "MYKEY", cfSubDomain = "mysubdomain"}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## http-enumerator > Network.Curl
 

@@ -7,7 +7,15 @@
 body {
   font-family: sans-serif;
   background-color: #FFFFFF;
-  color: #3C3A37
+  color: #3C3A37;
+}
+
+a {
+  color: #3C3A37;
+}
+
+a:hover {
+  text-decoration: none;
 }
 
 #container {
@@ -20,7 +28,6 @@ body {
   height: 100px;
   padding-bottom: 10px;
   margin-bottom: 10px;
-  border-bottom: 3px solid black;
 }
 
 #blog_title {
@@ -29,6 +36,14 @@ body {
   font-size: 60px;
   line-height: 40px;
   margin: 0 0 7px 0;
+}
+
+#header a {
+  text-decoration: none;
+}
+
+#footer {
+  text-align: center;
 }
 
 #blog_title .michael {
@@ -40,7 +55,8 @@ body {
 }
 
 #blog_tagline {
-  font-family: Helvetica, sans-serif;
+  font-family: Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+  font-weight: normal;
   color: #656565;
   font-size: 20px;
   margin: 0 0 7px 0;
@@ -53,20 +69,47 @@ body {
   margin: 0 0 7px 0;
 }
 
-/*TODO: box below, merge with divider*/
 #links a {
-  margin: 0 10px;
+  margin-right: 20px;
+  text-decoration: none;
+}
+
+#links a:hover {
+  color: white;
+  background-color: #656565;
 }
 
 #lambda {
-  width: 100px;
+  width: 126px;
   height: 100px;
-  background: url('http://placekitten.com/100/100');
+  background: url('/images/lambda.png');
   background-repeat: no-repeat;
   padding-right: 10px;
-  border-right: 3px solid black;
+  border-right: 1px solid #656565;
   margin-right: 10px;
   float: left;
+}
+
+h1.title {
+  font-family: georgia, 'bitstream vera sans serif', 'lucida grande', helvetica, verdana, sans-serif;
+  font-weight: normal;
+  letter-spacing: -0.05em;
+  /*color: #000000;*/
+  margin: 0;
+}
+
+h1.title a {
+  text-decoration: none;  
+  /*color: #000000;*/
+}
+
+.date {
+  font-style: italic;
+  font-size: 0.9em;
+  color: #999999;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px dotted #999999;
 }
 
 ul.posts {
@@ -74,7 +117,7 @@ ul.posts {
   padding: 0;
 }
 
-li.post {
+li.post, #article .post {
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 3px solid black;

@@ -13,19 +13,18 @@ main = hakyll $ do
     route idRoute
     compile compressCssCompiler
 
-  match "images/*" $ do
-    route idRoute
-    compile copyFileCompiler
+  match "images/*" straightCopy
 
-  match "javascripts/*" $ do
-    route idRoute
-    compile copyFileCompiler
+  match "javascripts/*" straightCopy
+
+  match "files/*" straightCopy
 
   match "templates/*" $ compile templateCompiler
 
   match "posts/*" $ do
     route $ setExtension ".html"
     compile $ pageCompiler
+      >>> arr (renderDateField "date" "%B %e, %Y" "Date unknown")
       >>> arr (copyBodyToField "content")
       >>> applyTemplateCompiler "templates/post.hamlet"
       >>> applyTemplateCompiler "templates/layout.hamlet"
@@ -45,3 +44,7 @@ addPostList = setFieldA "posts" $
         >>> require "templates/postitem.hamlet" (\p t -> map (applyTemplate t) p)
         >>> arr mconcat
         >>> arr pageBody
+
+straightCopy = do
+  route idRoute
+  compile copyFileCompiler

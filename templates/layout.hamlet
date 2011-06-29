@@ -5,23 +5,34 @@
     <title>#{title} -- MichaelXavier.net
     <link href="/feed" title="Feed for MichaelXavier.net" rel="application/atom+xml">
     <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen">
+    <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="screen">
     <script src="/javascripts/application.js" type="text/javascript" charset="utf-8">
-  <body onload="cursorBlink(2000);">
+    <script src="/javascripts/sh_css.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_haskell.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_html.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_javascript.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_main.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_ruby.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_sh.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_sql.min.js" type="text/javascript" charset="utf-8">
+    <script src="/javascripts/sh_xml.min.js" type="text/javascript" charset="utf-8">
+  <body onload="cursorBlink(2000); sh_highlightDocument();">
     <div #container>
       <div #header>
-        <div #lambda>
-        <h1 #blog_title>
-          <span .michael>
-            Michael
-          <span .xavier>
-            Xavier
+        <a href="/">
+          <div #lambda>
+          <h1 #blog_title>
+            <span .michael>
+              Michael
+            <span .xavier>
+              Xavier
         <h2 #blog_tagline>
           takeWhile safeForWork thoughts >>= blog
           <span #cursor>_
         <h3 #links>
           <a href="http://github.com/MichaelXavier">
             GitHub
-          <a href="resume.pdf">
+          <a href="/files/resume.pdf">
             Resume
           <a href="mailto:michael@michaelxavier.net">
             Email
@@ -33,5 +44,5 @@
           Copyright &copy; 2010-2011 Michael Xavier
         <div #hakyll>
           Site generated with 
-          <a href="http://jaspervdj.be/hakyll/">hakyll
+          <a href="http://jaspervdj.be/hakyll/" target="_blank">hakyll
           .

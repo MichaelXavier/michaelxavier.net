@@ -2,6 +2,6 @@
   <h1 .title>
     <a href="#{url}">#{title}
   <div .date>
-    PUBLISHED ON HERE
+    #{date}
   <div .post_body>
     #{content}
