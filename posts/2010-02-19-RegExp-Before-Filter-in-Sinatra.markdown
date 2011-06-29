@@ -9,33 +9,34 @@ I suppose the reason why Sinatra's before filter is so simple is because most of
 
 Here's what my little extension looks like:
 
-    #!sh_ruby
-    module Sinatra
+~~~~{.ruby}
+module Sinatra
 
-      module RegexpRouteFilter
-        def before_with_regexp(pattern, &blk)
-          before do
-            instance_eval(&blk) if request.path =~ pattern
-          end
-        end
+  module RegexpRouteFilter
+    def before_with_regexp(pattern, &blk)
+      before do
+        instance_eval(&blk) if request.path =~ pattern
       end
-
-      register RegexpRouteFilter
-
     end
+  end
+
+  register RegexpRouteFilter
+
+end
 
 Here's a sample of how you'd use it in a routes file:
 
-    #!sh_ruby
-    before_with_regexp(/^\/admin/) do
-      # call authentication methods here
-      halt 401, "GO AWAY!"
-    end
+~~~~{.ruby}
+before_with_regexp(/^\/admin/) do
+  # call authentication methods here
+  halt 401, "GO AWAY!"
+end
 
-    get '/admin/super_secret' do
-      #...
-    end
+get '/admin/super_secret' do
+  #...
+end
 
-    get '/admin/do_junk' do
-      #...
-    end
+get '/admin/do_junk' do
+  #...
+end
+~~~~

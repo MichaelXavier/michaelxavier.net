@@ -36,19 +36,21 @@ Child Selector Example
 Say you had the following HTML and you wanted to find all images which were
 direct descendents of elements with the class *image_container*
 
-    #!sh_html
-    <img src="decoy.jpg" />
-    <div class="image_container">
-      <img src="bingo.jpg" />
-      <span class="image_container">
-        <img src="alsobingo.jpg" />
-      </div>
-    </div>
+~~~~{.html}
+<img src="decoy.jpg" />
+<div class="image_container">
+  <img src="bingo.jpg" />
+  <span class="image_container">
+    <img src="alsobingo.jpg" />
+  </div>
+</div>
+~~~~
 
 Your jQuery would look like;
 
-    #!sh_javascript
-    $('.image_container > img')
+~~~~{.javascript}
+$('.image_container > img')
+~~~~
 
 This would return you the images for bingo.jpg and alsobingo.jpg, omitting decoy.jpg.
 
@@ -63,28 +65,30 @@ jQuery's selector will use the currently scoped element(s) as an implicit
 parent in the parent > child selector syntax, allowing you to leave the parent
 out entirely.
 
-    #!sh_html
-    <table>
-      <thead>
-        <tr class="findme">
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="findme">
-          <td>
-            <table>
-              <tr class="dontfindme"></tr>
-            </table>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+~~~~{.html}
+<table>
+  <thead>
+    <tr class="findme">
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="findme">
+      <td>
+        <table>
+          <tr class="dontfindme"></tr>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+~~~~
 
 Your jQuery would look like:
 
-    #!sh_javascript
-    var $table = $('table:first'); // Say we had to be scoped to the table
-    $table.find('> tr, > thead > tr, > tbody > tr, > tfoot > tr'); // This will get both findme's and skip the dontfindme
+~~~~{.javascript}
+var $table = $('table:first'); // Say we had to be scoped to the table
+$table.find('> tr, > thead > tr, > tbody > tr, > tfoot > tr'); // This will get both findme's and skip the dontfindme
+~~~~
 
 The left hand operand of the parent/child operator is implicit in this case so
 you won't have to do another (expensive) document scope find with an even more

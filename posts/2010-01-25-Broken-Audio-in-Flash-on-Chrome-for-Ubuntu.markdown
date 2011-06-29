@@ -9,9 +9,10 @@ Firefox is all but dead to me. It's slow as a dog, takes at least 4 times as lon
 
 Anyways, audio wasn't working for me for the longest time but I found a fix on the google support pages from a poster. It worked for me. I'll bet with this I can get myself down to opening firefox maybe once or twice a week!
 
-    #!sh_sh
-    sudo mkdir /opt/google/chrome/plugins
-    sudo cp /usr/lib/mozilla/plugins/flashplugin-alternative.so /opt/google/chrome/plugins/libflashplayer.so
+~~~~{.sh}
+sudo mkdir /opt/google/chrome/plugins
+sudo cp /usr/lib/mozilla/plugins/flashplugin-alternative.so /opt/google/chrome/plugins/libflashplayer.so
+~~~~
 
 To-do list for Chrome Devs:
 

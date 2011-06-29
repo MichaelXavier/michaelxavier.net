@@ -21,16 +21,17 @@ else and then start modifying that value _it will modify the request params
 before they get to your app_. Yeah, that's bad. My middleware looks something
 like
 
-    #!sh_ruby
-    class PasswordFilter < Middleware::Generic
-      def call(env)
-        req = Rack::Request.new(env)
-        env['request_logger.log_entry'][:params] = req.params # set up the env key for the rest of the pipeline
-        @hide_params.each {|param| set_hash_path(env['request_logger.log_entry'][:params], param)}
-        super(env)
-      end
-      #...
-    end
+~~~~{.ruby}
+class PasswordFilter < Middleware::Generic
+  def call(env)
+    req = Rack::Request.new(env)
+    env['request_logger.log_entry'][:params] = req.params # set up the env key for the rest of the pipeline
+    @hide_params.each {|param| set_hash_path(env['request_logger.log_entry'][:params], param)}
+    super(env)
+  end
+  #...
+end
+~~~~
 
 Evidently my modification of my copy of params affected the request so
 poor selenium was doing its job and Rack was submitting every login with the

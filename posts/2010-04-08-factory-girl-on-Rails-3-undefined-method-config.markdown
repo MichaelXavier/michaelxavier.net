@@ -9,16 +9,18 @@ This issue with factory_girl is is documented on the factory_girl github [here](
 
 Edit your Gemfile thusly: 
 
-    #!sh_ruby
-    group(:test) do
-      gem 'factory_girl', :git => 'git://github.com/danielb2/factory_girl'
-    end
+~~~~{.ruby}
+group(:test) do
+  gem 'factory_girl', :git => 'git://github.com/danielb2/factory_girl'
+end
+~~~~
 
 This will source danielb2's fork which removes all the special setup for rails.
 
 Next, edit your 'spec_helper' and add:
 
-    #!sh_ruby
-    require 'factories'
+~~~~{.ruby}
+require 'factories'
+~~~~
 
 The offending file automatically required my spec/factories.rb file so it's no big deal to add this in manually.

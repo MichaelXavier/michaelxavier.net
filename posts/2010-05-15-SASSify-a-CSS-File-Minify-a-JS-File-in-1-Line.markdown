@@ -9,8 +9,12 @@ I've been using the -O- flag for wget ever since I've found out about it to simp
 
 To download a CSS file and convert it to SASS, you'll need HAML/SASS installed, which provide the sass-convert tool:
 
-    wget http://example.com/stylesheet.css -O- | sass-convert -F css -T sass -s > stylesheet.sass
+~~~~{.sh}
+wget http://example.com/stylesheet.css -O- | sass-convert -F css -T sass -s > stylesheet.sass
+~~~~
 
 To download a JS file and convert it to minified JS, you'll need the jsmin gem installed. Also be careful doing this. If someone gets lazy and doesn't end a line with a semicolon in JS, the minified version will most likely fail to parse when you use it.
 
-    wget http://example.com/application.js -O- | ruby -rjsmin -e 'print JSMin.minify(STDIN)' > application.min.js
+~~~~{.sh}
+wget http://example.com/application.js -O- | ruby -rjsmin -e 'print JSMin.minify(STDIN)' > application.min.js
+~~~~

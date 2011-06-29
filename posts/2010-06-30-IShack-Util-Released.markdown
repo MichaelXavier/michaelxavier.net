@@ -12,9 +12,10 @@ Usage
 
 Run ishack --help for usage, but in general:
 
-    #!sh_sh
-    ishack myfile1.jpg myfile2.jpg
-    ishack -t http://example.com/1.jpg http://example.com/2.jpg # transloading from other urls
+~~~~{.sh}
+ishack myfile1.jpg myfile2.jpg
+ishack -t http://example.com/1.jpg http://example.com/2.jpg # transloading from other urls
+~~~~
 
 TODO
 -----

@@ -11,12 +11,13 @@ Nevertheless, someone had been using dom-manipulating code that didn't wait for
 the page to load. Tsk tsk. I quickly looked up what prototype's document ready
 equivalent was and found this:
 
-    #!sh_javascript
-    //In jQuery you'd do something like this:
-    $(function() { console.log("loaded!") });
+~~~~{.javascript}
+//In jQuery you'd do something like this:
+$(function() { console.log("loaded!") });
 
-    //In prototype:
-    document.observe('dom:loaded', function() { console.log("loaded!") });
+//In prototype:
+document.observe('dom:loaded', function() { console.log("loaded!") });
+~~~~
 
 One important detail is that both of these calls wait for the *dom* to load,
 not the window. This means that your javascript will execute when the dom is in
@@ -37,15 +38,16 @@ you could get bitten by this gotcha.
 
 The solution I came up with is admittedly inelegant but it gets the job done.
 
-    #!sh_javascript
-    (function() {
-      var cb = function() { console.log('loaded')};
-      if (document.loaded) {
-        cb();
-      } else {
-        document.observe('dom:loaded', cb);
-      }
-    })();
+~~~~{.javascript}
+(function() {
+  var cb = function() { console.log('loaded')};
+  if (document.loaded) {
+    cb();
+  } else {
+    document.observe('dom:loaded', cb);
+  }
+})();
+~~~~
 
 jQuery, in my opinion provides a more sensible default. I have not torn through
 the prototype docs to see if there's a better way to do this but the above code

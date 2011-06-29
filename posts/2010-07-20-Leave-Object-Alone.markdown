@@ -28,33 +28,34 @@ calls to ruby-debug. I'm intentionally calling set with incorrect arguments in
 order to trick ruby into letting me trace into whatever had inflicted this hell
 upon me. Behold:
 
-    #!sh_ruby
-    module Mongoid #:nodoc:
-      module Extensions #:nodoc:
-        module Object #:nodoc:
-          # This module converts objects into mongoid related objects.
-          module Conversions #:nodoc:
-            def self.included(base)
-              base.class_eval do
-                include InstanceMethods
-                extend ClassMethods
-              end
-            end
-
-            #...
-
-            module ClassMethods
-              # LOL I TROL U
-              def set(value)
-                value.respond_to?(:attributes) ? value.attributes : value
-              end
-
-              #...
-            end
+~~~~{.ruby}
+module Mongoid #:nodoc:
+  module Extensions #:nodoc:
+    module Object #:nodoc:
+      # This module converts objects into mongoid related objects.
+      module Conversions #:nodoc:
+        def self.included(base)
+          base.class_eval do
+            include InstanceMethods
+            extend ClassMethods
           end
+        end
+
+        #...
+
+        module ClassMethods
+          # LOL I TROL U
+          def set(value)
+            value.respond_to?(:attributes) ? value.attributes : value
+          end
+
+          #...
         end
       end
     end
+  end
+end
+~~~~
 
 WHAT?
 -----

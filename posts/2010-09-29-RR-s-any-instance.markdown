@@ -13,15 +13,16 @@ on those User instances or even their instantiation. However, you know that the
 tests will make a call to some external resource you don't want to hit. RR's
 got your back.
 
-    #!sh_ruby
-    describe Client
-      subject {Factory.build(:generate_refunds)}
-      describe "#generate_refunds" do
-        it "returns only successfully refunded purchases" do
-          any_instance_of(Refund, :send_to_paypal => false)
-          subject.generate_refunds.should be_empty
-        end
-      end
+~~~~{.ruby}
+describe Client
+  subject {Factory.build(:generate_refunds)}
+  describe "#generate_refunds" do
+    it "returns only successfully refunded purchases" do
+      any_instance_of(Refund, :send_to_paypal => false)
+      subject.generate_refunds.should be_empty
     end
+  end
+end
+~~~~
 
 I know I've come across a better use case but I can't think of it right now.

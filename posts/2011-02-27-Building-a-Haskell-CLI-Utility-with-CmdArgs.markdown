@@ -29,13 +29,14 @@ solving the problem, but it has worked pretty well for me.
 Everything having to do with the CheckPt code is namespaced to CheckPt. The
 Heirarchy looks something like: 
 
-    #!sh_html
-    |- CheckPt
-    |--- CheckPt.CLI (modes, dispatch)
-    |----- CheckPt.CLI.Mode (Mode(..))
-    |----- CheckPt.CLI.Add (execute)
-    |----- CheckPt.CLI.List (execute)
-    ....
+~~~~{.html}
+|- CheckPt
+|--- CheckPt.CLI (modes, dispatch)
+|----- CheckPt.CLI.Mode (Mode(..))
+|----- CheckPt.CLI.Add (execute)
+|----- CheckPt.CLI.List (execute)
+....
+~~~~
 
 ## Dispatch
 
@@ -45,18 +46,19 @@ the appropriate module's execute that takes over. If you want to add a new
 mode, you add to the mode list, the dispatch and create a new module to handle
 it. As you can see from the source, dispatch is pretty simple:
 
-    #!sh_haskell
-    dispatch :: Mode -> IO ()
-    dispatch m = case m of
-      Add {}            -> defaultConfig >>= CAdd.execute m
-      List {}           -> defaultConfig >>= CList.execute m
-      Collection {}     -> defaultConfig >>= CCollection.execute m
-      Complete {}       -> defaultConfig >>= CComplete.execute m
-      Uncomplete {}     -> defaultConfig >>= CUncomplete.execute m
-      Names {}          -> defaultConfig >>= CNames.execute m
-      Delete {}         -> defaultConfig >>= CDelete.execute m
-      GarbageCollect {} -> defaultConfig >>= CGarbageCollect.execute m
-      Init {}           -> defaultConfig >>= CInit.execute m
+~~~~{.haskell}
+dispatch :: Mode -> IO ()
+dispatch m = case m of
+  Add {}            -> defaultConfig >>= CAdd.execute m
+  List {}           -> defaultConfig >>= CList.execute m
+  Collection {}     -> defaultConfig >>= CCollection.execute m
+  Complete {}       -> defaultConfig >>= CComplete.execute m
+  Uncomplete {}     -> defaultConfig >>= CUncomplete.execute m
+  Names {}          -> defaultConfig >>= CNames.execute m
+  Delete {}         -> defaultConfig >>= CDelete.execute m
+  GarbageCollect {} -> defaultConfig >>= CGarbageCollect.execute m
+  Init {}           -> defaultConfig >>= CInit.execute m
+~~~~
 
 
 ## Mode
@@ -68,53 +70,56 @@ and other wizardry to generate command flags just from the types and names of
 the record fields for the modes you specify, which you can then tweak. Here's
 what CheckPt's Mode datatype looks like:
 
-    #!sh_haskell
-    data Mode
-      = Add            { name :: String, completed :: Bool                  } 
-      | List           { rootonly :: Bool                                   } 
-      | Collection     { cname :: String , inames :: [String]               } 
-      | Complete       { name :: String , inames :: [String], clear :: Bool } 
-      | Uncomplete     { name :: String , inames :: [String], clear :: Bool } 
-      | Delete         { name :: String , inames :: [String], clear :: Bool } 
-      | GarbageCollect {                                                    } 
-      | Names          { toplevel :: String                                 }
-      | Init           { force :: Bool																			}
-      deriving (Show, Typeable, Data)
+~~~~{.haskell}
+data Mode
+  = Add            { name :: String, completed :: Bool                  } 
+  | List           { rootonly :: Bool                                   } 
+  | Collection     { cname :: String , inames :: [String]               } 
+  | Complete       { name :: String , inames :: [String], clear :: Bool } 
+  | Uncomplete     { name :: String , inames :: [String], clear :: Bool } 
+  | Delete         { name :: String , inames :: [String], clear :: Bool } 
+  | GarbageCollect {                                                    } 
+  | Names          { toplevel :: String                                 }
+  | Init           { force :: Bool																			}
+  deriving (Show, Typeable, Data)
+~~~~
 
 ## The Modes Export
 
 The *modes* function that CheckPt.CLI exports is the most important part of
 defining the CLI. I essentially pass a list of annotated modes to CmdArgs' *modes_* function to tie it all together like so:
 
-    #!sh_haskell
-    import qualified System.Console.CmdArgs as Arg
-    import           System.Console.CmdArgs((+=),Annotate((:=)),(&=))
-    modes :: Annotate Arg.Ann
-    modes  = Arg.modes_  [add,
-                          list,
-                          collection,
-                          complete,
-                          uncomplete,
-                          names,
-                          delete,
-                          gc,
-                          init]
-          += Arg.program "checkpt"
-          += Arg.summary "checkpt: track your consumption of media"
-          += Arg.help    "Run checkpt help SUBCOMMAND to get more info on one of the subcommands listed below."
-           where --... define all the modes below
+~~~~{.haskell}
+import qualified System.Console.CmdArgs as Arg
+import           System.Console.CmdArgs((+=),Annotate((:=)),(&=))
+modes :: Annotate Arg.Ann
+modes  = Arg.modes_  [add,
+                      list,
+                      collection,
+                      complete,
+                      uncomplete,
+                      names,
+                      delete,
+                      gc,
+                      init]
+      += Arg.program "checkpt"
+      += Arg.summary "checkpt: track your consumption of media"
+      += Arg.help    "Run checkpt help SUBCOMMAND to get more info on one of the subcommands listed below."
+  where --... define all the modes below
+~~~~
 
 ### Boolean and String Flags
 
 Boolean and String flags get handled automagically by CmdArgs. You can even
 specify defaults:
 
-    #!sh_haskell
-    list = Arg.record List { rootonly = Arg.def }
-      [rootonly := False
-                += Arg.help "Only list root level items"]
-      += Arg.help "Display your list"
-      += Arg.auto
+~~~~{.haskell}
+list = Arg.record List { rootonly = Arg.def }
+  [rootonly := False
+            += Arg.help "Only list root level items"]
+  += Arg.help "Display your list"
+  += Arg.auto
+~~~~
 
 When passing the record to CmdArgs.record, You're most likely going to want to
 assign Arg.def to each filed so your compiler doesn't complain about
@@ -126,10 +131,11 @@ list mode will be invoked by default.
 CmdArgs makes available short and longhand flags based on the names of the
 fields on the record. In this case, the *list* mode can be invoked via: 
 
-    #!sh_sh
-    checkpt list            # List everything
-    checkpt list -r         # List root-only items
-    checkpt list --rootonly # Same as above
+~~~~{.sh}
+checkpt list            # List everything
+checkpt list -r         # List root-only items
+checkpt list --rootonly # Same as above
+~~~~
 
 ### ARGV Arguments
 
@@ -139,30 +145,32 @@ assign values with the index in ARGV *after* the subcommand. For the *add*
 subcommand, I wanted the name to be the next arg. Her'es what the mode
 definition looks like:
 
-    #!sh_haskell
-    add = Arg.record Add {name = Arg.def, completed = Arg.def}
-      [name := error "Must specify a name"
-            += Arg.argPos 0
-            += Arg.typ "NAME",
-      completed := False]
+~~~~{.haskell}
+add = Arg.record Add {name = Arg.def, completed = Arg.def}
+  [name := error "Must specify a name"
+        += Arg.argPos 0
+        += Arg.typ "NAME",
+  completed := False]
+~~~~
 
 
 There's a few interesting things in the snippet above. Arg.typ allows us to
 specify the text placeholder given in the auto-generated help for this
 subcommand:
 
-    #!sh_sh
-    $> checkpt add --help
-    checkpt: track your consumption of media
+~~~~{.sh}
+$> checkpt add --help
+checkpt: track your consumption of media
 
-    checkpt add [OPTIONS] NAME
-      Add a root level item to your list
+checkpt add [OPTIONS] NAME
+  Add a root level item to your list
 
-    Flags:
-      -c --completed
-    Common flags:
-      -? --help       Display help message
-      -V --version    Print version information
+Flags:
+  -c --completed
+Common flags:
+  -? --help       Display help message
+  -V --version    Print version information
+~~~~
 
 Note that the default value for name is actually an error. If the user forgets
 a name, the program crashes with an error message.
@@ -174,21 +182,23 @@ the rest of the argument list. I needed this for collection to allow a user to
 add a collection and pre-populate it with items. You can combine argPos and
 args to achieve this.
 
-    #!sh_haskell
-    collection = Arg.record Collection { cname = Arg.def, inames = Arg.def }
-      [cname := error "Must specify a name"
-            += Arg.argPos 0
-            += Arg.typ "NAME",
-      inames := []
-            += Arg.args
-            += Arg.typ "ITEM_NAMES"]
-      += Arg.help "Add or list a collection"
+~~~~{.haskell}
+collection = Arg.record Collection { cname = Arg.def, inames = Arg.def }
+  [cname := error "Must specify a name"
+        += Arg.argPos 0
+        += Arg.typ "NAME",
+  inames := []
+        += Arg.args
+        += Arg.typ "ITEM_NAMES"]
+  += Arg.help "Add or list a collection"
+~~~~
 
 This allows you to call this mode like so:
     
-    #!sh_sh
-    checkpt collection foos
-    checkpt collection foos bar baz
+~~~~{.sh}
+checkpt collection foos
+checkpt collection foos bar baz
+~~~~
 
 ### Rename Subcommand
 
@@ -196,23 +206,25 @@ CmdArgs will attempt to name your subcommand based on the name of the record.
 garbagecollect is a lot more tedious to type than gc so i use "name" to
 explicitly indicate the subcommand.
 
-    #!sh_haskell
-    gc = Arg.record GarbageCollect { }
-      []
-      += Arg.name "gc"
-      += Arg.help "Delete completed line items and collections"
+~~~~{.haskell}
+gc = Arg.record GarbageCollect { }
+  []
+  += Arg.name "gc"
+  += Arg.help "Delete completed line items and collections"
+~~~~
 
 ## Main
 
 The main for a program structured like this becomes a dead-simple one-liner:
 
-    #!sh_haskell
-    import CheckPt.CLI (modes, dispatch)
+~~~~{.haskell}
+import CheckPt.CLI (modes, dispatch)
 
-    import qualified System.Console.CmdArgs as Arg
+import qualified System.Console.CmdArgs as Arg
 
-    main :: IO ()
-    main = Arg.cmdArgs_ modes >>= dispatch
+main :: IO ()
+main = Arg.cmdArgs_ modes >>= dispatch
+~~~~
 
 ## Conclusion
 

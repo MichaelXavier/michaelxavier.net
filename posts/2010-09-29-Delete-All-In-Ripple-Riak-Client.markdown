@@ -22,12 +22,13 @@ a lot of memory.
 One great example of when you would want to clear a bucket is as a setup task
 for specs:
 
-    #!sh_ruby
-    RSpec.configure do |config|
-      config.before(:each) do
-        Notification.bucket.keys.each {|k| Notification.bucket.delete(k)}
-      end
-    end
+~~~~{.ruby}
+RSpec.configure do |config|
+  config.before(:each) do
+    Notification.bucket.keys.each {|k| Notification.bucket.delete(k)}
+  end
+end
+~~~~
 
 I hope you like slow test suites!
 
@@ -35,11 +36,12 @@ Edit
 ----
 Turns out there is a subtle but more efficient way to do this. Thanks to [Aphyr](http://aphyr.com)
 
-    #!sh_ruby
-    RSpec.configure do |config|
-      config.before(:each) do
-        Notification.bucket.keys {|keys| keys.each {|k|Notification.bucket.delete(k)}
-      end
-    end
+~~~~{.ruby}
+RSpec.configure do |config|
+  config.before(:each) do
+    Notification.bucket.keys {|keys| keys.each {|k|Notification.bucket.delete(k)}
+  end
+end
+~~~~
 
 Evidently that extra block scoping streams the keys. Neat!

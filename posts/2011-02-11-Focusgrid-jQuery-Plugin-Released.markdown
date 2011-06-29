@@ -15,8 +15,9 @@ navigate it with your arrow keys quite easily using only the semantics of
 tables. Options are documented in the readme. For the base case, all you need
 to do to initialize it is:
 
-    #!sh_javascript
-    $('#myTable').focusgrid();
+~~~~{.javascript}
+$('#myTable').focusgrid();
+~~~~
 
 We found this very useful for an inventory management system we were working on
 gussying up. There are much nicer jQuery UI plugins for creating full-blown

@@ -16,7 +16,7 @@ Campfire bot in Haskell or something, consider Web.Campfire.
 Web.Campfire runs in a monad, or particularly, inside of a ReaderT from
 Control.Monad.Reader. Below is an example program using the library:
 
-~~~~~~~~~~~~~~~~~~~~ {.haskell .numberLines}
+~~~~{.haskell}
 {-# LANGUAGE OverloadedStrings #-}
 import Web.Campfire
 import Web.Campfire.Monad
@@ -61,45 +61,46 @@ backend of Web.Campfire several times:
 
 The suggestion I got on the mailing list for a POST in Curl looked like:
 
-    #!sh_haskell
-    {-# LANGUAGE ScopedTypeVariables #-}
+~~~~{.haskell}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-    import Control.Exception (IOException, handle)
-    import Control.Monad (liftM)
-    import qualified Data.ByteString as BSS
-    import qualified Data.ByteString.Lazy as BS
-    import qualified Data.ByteString.Lazy.Char8 as BS8
-    import Data.IORef
-    import qualified Network.Curl as Curl
-    import Network.URI (URI)
+import Control.Exception (IOException, handle)
+import Control.Monad (liftM)
+import qualified Data.ByteString as BSS
+import qualified Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy.Char8 as BS8
+import Data.IORef
+import qualified Network.Curl as Curl
+import Network.URI (URI)
 
 
-    post :: URI -> BS.ByteString -> String -> IO (Maybe BS.ByteString)
-    post uri body contentType = handleIOException (const $ return Nothing) $ Curl.withCurlDo $ do
-          bodyRef <- newIORef []
-          h <- Curl.initialize
-          mapM_ (Curl.setopt h) $ [Curl.CurlURL $ show uri,
-                                    Curl.CurlNoBody False,
-                                    Curl.CurlFollowLocation False,
-                                    Curl.CurlMaxRedirs 0,
-                                    Curl.CurlAutoReferer False,
-                                    Curl.CurlUserAgent "Mozilla/5.0",
-                                    Curl.CurlNoSignal True,
-                                    Curl.CurlPostFields [BS8.unpack body],
-                                    Curl.CurlHttpHeaders ["Content-Type: " ++ contentType],
-                                    Curl.CurlWriteFunction $ bodyFunction bodyRef]
-          code <- Curl.perform h
-          if code /= Curl.CurlOK
-              then return Nothing
-              else liftM (Just . BS.fromChunks . reverse) $ readIORef bodyRef
+post :: URI -> BS.ByteString -> String -> IO (Maybe BS.ByteString)
+post uri body contentType = handleIOException (const $ return Nothing) $ Curl.withCurlDo $ do
+      bodyRef <- newIORef []
+      h <- Curl.initialize
+      mapM_ (Curl.setopt h) $ [Curl.CurlURL $ show uri,
+                                Curl.CurlNoBody False,
+                                Curl.CurlFollowLocation False,
+                                Curl.CurlMaxRedirs 0,
+                                Curl.CurlAutoReferer False,
+                                Curl.CurlUserAgent "Mozilla/5.0",
+                                Curl.CurlNoSignal True,
+                                Curl.CurlPostFields [BS8.unpack body],
+                                Curl.CurlHttpHeaders ["Content-Type: " ++ contentType],
+                                Curl.CurlWriteFunction $ bodyFunction bodyRef]
+      code <- Curl.perform h
+      if code /= Curl.CurlOK
+          then return Nothing
+          else liftM (Just . BS.fromChunks . reverse) $ readIORef bodyRef
 
-    bodyFunction :: IORef [BSS.ByteString] -> Curl.WriteFunction
-    bodyFunction r = Curl.gatherOutput_ $ \s -> do
-                      bs <- BSS.packCStringLen s
-                      modifyIORef r (bs:)
+bodyFunction :: IORef [BSS.ByteString] -> Curl.WriteFunction
+bodyFunction r = Curl.gatherOutput_ $ \s -> do
+                  bs <- BSS.packCStringLen s
+                  modifyIORef r (bs:)
 
-    handleIOException :: (IOException -> IO a) -> IO a -> IO a
-    handleIOException handler action = handle (\(e :: IOException) -> handler e) action
+handleIOException :: (IOException -> IO a) -> IO a -> IO a
+handleIOException handler action = handle (\(e :: IOException) -> handler e) action
+~~~~
 
 Dreadfully crufty. My actual implementation with http-enumerator is loads simpler. The majority of the body of the http-enumerator implementation is just setting up the request in a declarative fashion, as it should be.
 

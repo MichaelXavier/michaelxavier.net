@@ -9,26 +9,27 @@ _cattr_accessor_ is a convenience method added via ActiveSupport as I recall. It
 
 Consider the following example:
      
-    #!sh_ruby
-    class Fruit
-      @@delicious = true
-      cattr_reader :delicious
-    end
+~~~~{.ruby}
+class Fruit
+  @@delicious = true
+  cattr_reader :delicious
+end
 
-    puts "Fruit is delicious: #{Fruit.delicious}"          #Prints true
+puts "Fruit is delicious: #{Fruit.delicious}"          #Prints true
 
-    #HoneyDew is gross
-    class HoneyDew < Fruit
-      @@delicious = false
-    end
+#HoneyDew is gross
+class HoneyDew < Fruit
+  @@delicious = false
+end
 
-    #One would think this would inherit the class variable. One would be wrong.
-    class Banana < Fruit
-    end
+#One would think this would inherit the class variable. One would be wrong.
+class Banana < Fruit
+end
 
-    puts "Fruit is delicious: #{Fruit.delicious}"         #Prints false 
-    puts "HoneyDews are delicious: #{HoneyDew.delicious}" #Prints false 
-    puts "Bananas are delicious: #{Banana.delicious}"     #Prints false  
+puts "Fruit is delicious: #{Fruit.delicious}"         #Prints false 
+puts "HoneyDews are delicious: #{HoneyDew.delicious}" #Prints false 
+puts "Bananas are delicious: #{Banana.delicious}"     #Prints false  
+~~~~
 
 You will notice that the class variable is shared and that it is modified in the order that the code is evaluated. I made a bad decision to use code like this in an application I was writing and it caused some very unexpected behaviour.
 

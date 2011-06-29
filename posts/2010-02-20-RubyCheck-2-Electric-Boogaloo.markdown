@@ -7,14 +7,16 @@ A few posts back I wrote a bash one-liner that would check syntax on all files i
 
 The way to do this in a shell script would be:
 
-    #!sh_sh
-    #!/bin/bash
-    find $1 -name "*.rb" -type f -exec ruby -c {} > /dev/null
+~~~~{.sh}
+#!/bin/bash
+find $1 -name "*.rb" -type f -exec ruby -c {} > /dev/null
+~~~~
 
 In ruby, I'd do:
 
-    #!sh_ruby
-    #!/usr/bin/env ruby
-    Dir[File.join(ARGV.first, '**/*.rb')].each {|d| system("ruby -c #{d} > /dev/null")}"
+~~~~{.ruby}
+#!/usr/bin/env ruby
+Dir[File.join(ARGV.first, '**/*.rb')].each {|d| system("ruby -c #{d} > /dev/null")}"
+~~~~
 
 Turns out the shell way is actually a little prettier. That doesn't happen a lot.

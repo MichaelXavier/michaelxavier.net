@@ -20,12 +20,13 @@ mapleader key (\ key by default). The bindings I used most frequently were:
 
 To get this functionality in fugitive, add the following to your vimrc
 
-    #!sh_sh
-    "rebind my favorite commands from Git.vim for Fugitive
-    nmap <leader>gs :Gstatus<cr>
-    nmap <leader>gc :Gcommit<cr>
-    nmap <leader>ga :Gwrite<cr>
-    nmap <leader>gl :Glog<cr>
-    nmap <leader>gd :Gdiff<cr>
+~~~~{.sh}
+"rebind my favorite commands from Git.vim for Fugitive
+nmap <leader>gs :Gstatus<cr>
+nmap <leader>gc :Gcommit<cr>
+nmap <leader>ga :Gwrite<cr>
+nmap <leader>gl :Glog<cr>
+nmap <leader>gd :Gdiff<cr>
+~~~~
 
 Thanks to TPope for yet another wonderful plugin. Check out more of his repos on his [github account](http://github.com/tpope).

@@ -7,12 +7,13 @@ I came across a strange gotcha with the *else* statement in ruby.
 
 As it turns out, you can place an expression directly after an *else* statement:
 
-    #!sh_ruby
-    if false
-      puts "you'll never see this"
-    else false
-      puts "you'll always see this"
-    end
+~~~~{.ruby}
+if false
+  puts "you'll never see this"
+else false
+  puts "you'll always see this"
+end
+~~~~
 
 At first I chalked it down as a flaw in the grammar, but it makes sense when
 you examine it. The ruby grammar expects an expression to follow else. It does
