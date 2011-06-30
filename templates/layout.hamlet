@@ -16,7 +16,7 @@
     <script src="/javascripts/sh_sh.min.js" type="text/javascript" charset="utf-8">
     <script src="/javascripts/sh_sql.min.js" type="text/javascript" charset="utf-8">
     <script src="/javascripts/sh_xml.min.js" type="text/javascript" charset="utf-8">
-  <body onload="cursorBlink(2000); sh_highlightDocument();">
+  <body onload="cursorBlink(1500); sh_highlightDocument();">
     <div #container>
       <div #header>
         <a href="/">
@@ -27,8 +27,9 @@
             <span .xavier>
               Xavier
         <h2 #blog_tagline>
-          takeWhile safeForWork thoughts >>= blog
-          <span #cursor>_
+          blog $ takeWhile safeForWork thoughts
+          <span #cursor>
+            _
         <h3 #links>
           <a href="http://github.com/MichaelXavier">
             GitHub
