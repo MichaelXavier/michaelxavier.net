@@ -107,6 +107,9 @@ h1.title a {
   font-style: italic;
   font-size: 0.9em;
   color: #999999;
+}
+
+.post .date {
   padding-bottom: 5px;
   margin-bottom: 5px;
   border-bottom: 1px dotted #999999;
@@ -123,6 +126,16 @@ li.post, #article .post {
   border-bottom: 3px solid black;
 }
 
+.compact_post {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #999999;
+}
+
 .date {
   text-decoration: italic;
+}
+
+.compact_post .date {
+  float: right;
 }

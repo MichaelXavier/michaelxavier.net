@@ -3,7 +3,7 @@
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
     <title>#{title} -- MichaelXavier.net
-    <link href="/feed" title="Feed for MichaelXavier.net" rel="application/atom+xml">
+    <link href="/rss.xml" title="Feed for MichaelXavier.net" rel="application/atom+xml">
     <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen">
     <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="screen">
     <script src="/javascripts/application.js" type="text/javascript" charset="utf-8">
@@ -36,6 +36,10 @@
             Resume
           <a href="mailto:michael@michaelxavier.net">
             Email
+          <a href="/posts.html">
+            All Posts
+          <a href="/rss.xml">
+            RSS
 
       <div #body>
         #{body}

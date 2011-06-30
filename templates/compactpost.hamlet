@@ -1,0 +1,4 @@
+<li .compact_post>
+  <a href="#{url}">#{title}
+  <span .date>
+    #{date}

@@ -30,6 +30,13 @@ main = hakyll $ do
       >>> applyTemplateCompiler "templates/layout.hamlet"
       >>> relativizeUrlsCompiler
 
+  match "posts.html" $ route idRoute
+  create "posts.html" $ constA mempty
+    >>> arr (setField "title" "Posts")
+    >>> setFieldPageList recentFirst "templates/compactpost.hamlet" "posts" "posts/*"
+    >>> applyTemplateCompiler "templates/index.hamlet"
+    >>> applyTemplateCompiler "templates/layout.hamlet"
+
   match  "index.html" $ route idRoute
   create "index.html" $ constA mempty
     >>> arr (setField "title" "Home")
@@ -38,6 +45,9 @@ main = hakyll $ do
     >>> applyTemplateCompiler "templates/layout.hamlet"
     >>> relativizeUrlsCompiler
 
+  match "rss.xml" $ route idRoute
+  create "rss.xml" $ requireAll_ "posts/*" >>> renderRss feedConfiguration
+
 addPostList :: Compiler (Page String, [Page String]) (Page String)
 addPostList = setFieldA "posts" $
     arr (reverse . chronological)
@@ -45,6 +55,13 @@ addPostList = setFieldA "posts" $
         >>> arr mconcat
         >>> arr pageBody
 
+straightCopy :: RulesM (Pattern CopyFile)
 straightCopy = do
   route idRoute
   compile copyFileCompiler
+
+feedConfiguration :: FeedConfiguration
+feedConfiguration = FeedConfiguration { feedTitle       = "MichaelXavier.net - Infrequently Blogging on Ruby, Haskell, and Other CS stuff.",
+                                        feedDescription = "Personal blog of Michael Xavier",
+                                        feedAuthorName  = "Michael Xavier",
+                                        feedRoot        = "http://www.michaelxavier.net" }
