@@ -7,16 +7,7 @@
     <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen">
     <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="screen">
     <script src="/javascripts/application.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_css.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_haskell.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_html.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_javascript.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_main.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_ruby.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_sh.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_sql.min.js" type="text/javascript" charset="utf-8">
-    <script src="/javascripts/sh_xml.min.js" type="text/javascript" charset="utf-8">
-  <body onload="cursorBlink(1500); sh_highlightDocument();">
+  <body onload="cursorBlink(1500);">
     <div #container>
       <div #header>
         <a href="/">
