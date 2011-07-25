@@ -1,5 +1,8 @@
 all: build
 
+post:
+	$(EDITOR) posts/`date +%Y-%m-%d`-`echo $(TITLE) | sed 's/\s/-/g'`.markdown
+
 mxnet: mxnet.hs 
 	ghc --make mxnet.hs
 
