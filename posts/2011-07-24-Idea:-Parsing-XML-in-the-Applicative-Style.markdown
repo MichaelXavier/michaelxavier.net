@@ -43,6 +43,7 @@ The Cursor module also provides a lot of helpful infix operators with fairly log
 I also lifted some exception handling code from another library that uses xml-enumerator:
 
 ~~~~{.haskell}
+import qualified Text.XML.Enumerator.Cursor as Cu
 forceEx :: F.Failure XmlException m => String -> [a] -> m a
 forceEx = Cu.force . XmlException
 ~~~~
