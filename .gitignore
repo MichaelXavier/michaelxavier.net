@@ -5,3 +5,4 @@ _cache
 _site
 .sass-cache
 assets/*.*
+assets/**/*.*
