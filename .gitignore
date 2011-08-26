@@ -4,3 +4,4 @@ mxnet
 _cache
 _site
 .sass-cache
+assets/*.*

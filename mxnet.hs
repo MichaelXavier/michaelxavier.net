@@ -15,6 +15,8 @@ main = hakyll $ do
 
   match "images/*" straightCopy
 
+  match "assets/*" straightCopy
+
   match "javascripts/*" straightCopy
 
   match "files/*" straightCopy
