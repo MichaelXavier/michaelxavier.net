@@ -22,6 +22,8 @@
           <span #cursor>
             _
         <h3 #links>
+          <a href="/pages/projects.html">
+            Projects
           <a href="http://github.com/MichaelXavier">
             GitHub
           <a href="/files/resume.pdf">

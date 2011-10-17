@@ -24,6 +24,14 @@ main = hakyll $ do
 
   match "templates/*" $ compile templateCompiler
 
+  match "pages/*" $ do
+    route $ setExtension ".html"
+    compile $ pageCompiler
+      >>> arr (copyBodyToField "content")
+      >>> applyTemplateCompiler "templates/page.hamlet"
+      >>> applyTemplateCompiler "templates/layout.hamlet"
+      >>> relativizeUrlsCompiler
+
   match "posts/*" $ do
     route $ setExtension ".html"
     compile $ pageCompiler
