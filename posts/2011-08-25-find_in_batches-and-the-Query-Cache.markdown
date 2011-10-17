@@ -15,7 +15,7 @@ We use find_in_batches and find_each a lot at work for oneoff scripts and large 
   end
 ~~~~
 
-You can read (the documentation)[http://railsapi.com/doc/rails-v2.3.8/classes/ActiveRecord/Batches/ClassMethods.html#M001252] for the details, but the gist is that Rails will handle the pagination on the backend, fetching 1000 records at a time. 
+You can read [the documentation](http://railsapi.com/doc/rails-v2.3.8/classes/ActiveRecord/Batches/ClassMethods.html#M001252) for the details, but the gist is that Rails will handle the pagination on the backend, fetching 1000 records at a time. 
 
 find_in_batches is the generic case for this and will yield in each batch rather than each product in the batch.
 
