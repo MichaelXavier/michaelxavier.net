@@ -13,3 +13,8 @@ Haskell bindings for the Campfire chat API.
 
 * [Github](http://github.com/MichaelXavier/Campfire)
 * [HackageDB](http://hackage.haskell.org/package/campfire)
+
+## Web.RememberTheMilk
+Haskell bindings for the RememberTheMilk API. _Coming soon._
+
+* [Github](http://github.com/MichaelXavier/RememberTheMilk)
