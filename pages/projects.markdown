@@ -15,6 +15,7 @@ Haskell bindings for the Campfire chat API.
 * [HackageDB](http://hackage.haskell.org/package/campfire)
 
 ## Web.RememberTheMilk
-Haskell bindings for the RememberTheMilk API. _Coming soon._
+Haskell bindings for the RememberTheMilk API. Currently on haitus until RTM
+fixes their JSON API to be less of an unredeemable nightmare to work with.
 
 * [Github](http://github.com/MichaelXavier/RememberTheMilk)
