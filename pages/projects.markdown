@@ -2,6 +2,20 @@
 title: Projects
 ---
 
+## Bucketeer
+HTTP service for leaky bucket-style rate limiting, written in Haskell.
+
+* [Github](http://github.com/MichaelXavier/Bucketeer)
+* HackageDB to come as soon as I get some experience using it in the real world
+  to ensure I haven't missed anything major.
+
+## Bucketeer Client for Ruby
+Ruby client for the Bucketeer rate limiting service.
+
+* [Github](https://github.com/MichaelXavier/bucketeer-client-ruby)
+* Rubygems: Same as above. As soon as Bucketeer is on HackageDB, this can go on
+  rubygems.
+
 ## Web.GooglePlus
 Haskell bindings for v1 of the Google+ API.
 
