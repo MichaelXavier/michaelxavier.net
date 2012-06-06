@@ -16,6 +16,12 @@ Ruby client for the Bucketeer rate limiting service.
 * Rubygems: Same as above. As soon as Bucketeer is on HackageDB, this can go on
   rubygems.
 
+## cron
+Cron data structure and parser for Haskell.
+
+* [Github](http://github.com/MichaelXavier/Bucketeer)
+* [HackageDB](http://hackage.haskell.org/package/cron)
+
 ## Web.GooglePlus
 Haskell bindings for v1 of the Google+ API.
 
