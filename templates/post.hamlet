@@ -6,3 +6,4 @@
       #{date}
     <div .body>
       #{content}
+        <div #disqus_thread>
