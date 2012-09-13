@@ -138,7 +138,7 @@ li.post, #article .post {
 }
 
 .date {
-  text-decoration: italic;
+  font-style: italic;
   float:left;
 }
 
