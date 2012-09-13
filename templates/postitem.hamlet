@@ -1,10 +1,8 @@
 <li .post>
   <h1 .title>
     <a href="#{url}">#{title}
-  <span .date>
+  <div .date>
     #{date}
-  <div .comment_count>
-    <a href="#{url}#disqus_thread">Comments
   <div .post_body>
     #{content}
   <div .comment_count>
