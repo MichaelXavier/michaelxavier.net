@@ -1,5 +1,5 @@
 ---
-title: 9 Months of Continuous Pair Programming Part 1: Staying Effective
+title: 9 Months of Continuous Pair Programming Part 2: Staying Effective
 categories: pair_programming software_development
 ---
 
