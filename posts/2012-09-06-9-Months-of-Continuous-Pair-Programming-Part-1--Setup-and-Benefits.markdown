@@ -1,6 +1,6 @@
 ---
 title: 9 Months of Continuous Pair Programming Part 1: Setup/Reasons
-categories: pair_programming software_development
+categories: pair_programming, software_development
 ---
 
 This is the first in a series of posts about my reflections of continuous pair
