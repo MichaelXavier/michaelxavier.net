@@ -69,12 +69,12 @@ module DeferredTouching
       end
 
       block.call
+
+      to_touch.each(&:touch)
     ensure
       old_methods.each do |klass, meth|
         klass.send(:define_method, :touch, meth)
       end
-
-      to_touch.each(&:touch)
     end
   end
 end
