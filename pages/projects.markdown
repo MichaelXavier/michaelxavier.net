@@ -19,7 +19,7 @@ Ruby client for the Bucketeer rate limiting service.
 ## cron
 Cron data structure and parser for Haskell.
 
-* [Github](http://github.com/MichaelXavier/Bucketeer)
+* [Github](http://github.com/MichaelXavier/cron)
 * [HackageDB](http://hackage.haskell.org/package/cron)
 
 ## Buster
