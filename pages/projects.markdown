@@ -22,6 +22,13 @@ Cron data structure and parser for Haskell.
 * [Github](http://github.com/MichaelXavier/Bucketeer)
 * [HackageDB](http://hackage.haskell.org/package/cron)
 
+## Buster
+Buster is a utility for periodically hitting a set of URLs for the purpose of
+cache busting.
+
+* [Github](http://github.com/MichaelXavier/Buster)
+* [HackageDB](http://hackage.haskell.org/package/Buster)
+
 ## Web.GooglePlus
 Haskell bindings for v1 of the Google+ API.
 
@@ -48,7 +55,7 @@ constitutes an administrative panel for HollaBack as well as a hook for the
 * [Github](http://github.com/MichaelXavier/hollaback_admin)
 
 ## Web.MusicBrainz
-I have ceased work on this project because of the unpredictability of the the
+I have ceased work on this project because of the unpredictability of the API
 datatypes. I have since transferred ownership of the project over to
 [this](https://github.com/ocharles/Web-MusicBrainz) repository.
 
