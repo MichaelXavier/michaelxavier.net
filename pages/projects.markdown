@@ -29,6 +29,12 @@ cache busting.
 * [Github](http://github.com/MichaelXavier/Buster)
 * [HackageDB](http://hackage.haskell.org/package/Buster)
 
+## kickass-torrents-dump-parser
+Simple parser for kickass torrents data dumps, written in Haskell.
+
+* [Github](https://github.com/MichaelXavier/kickass-torrents-dump-parser)
+* [HackageDB](http://hackage.haskell.org/package/kickass-torrents-dump-parser)
+
 ## Web.GooglePlus
 Haskell bindings for v1 of the Google+ API.
 
