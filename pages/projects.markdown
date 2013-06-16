@@ -2,6 +2,12 @@
 title: Projects
 ---
 
+## Angel (Maintainer)
+Process Monitoring/Management, Like Daemontools
+
+* [Github](http://github.com/MichaelXavier/Angel)
+* [HackageDB](http://hackage.haskell.org/package/angel)
+
 ## Bucketeer
 HTTP service for leaky bucket-style rate limiting, written in Haskell.
 
