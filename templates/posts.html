@@ -1,0 +1,12 @@
+<ul class="posts">
+  $for(posts)$
+    <li class="compact_post">
+      <a href="$url$">$title$</a>
+      <span class="date">
+        $date$
+      </span>
+      <span class="comment_count">
+        <a href="$url$#disqus_thread">Comments</a>
+      </span>
+  $endfor$
+</ul>

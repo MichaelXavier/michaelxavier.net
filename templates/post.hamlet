@@ -1,9 +1,0 @@
-<div #article>
-  <div .post>
-    <h1 .title>
-      #{title}
-    <div .date>
-      #{date}
-    <div .body>
-      #{content}
-        <div #disqus_thread>

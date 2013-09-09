@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>My Hakyll Blog - $title$</title>
+    <link href="/rss.xml" title="Feed for MichaelXavier.net" rel="application/atom+xml" />
+    <link href="/css/default.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="screen" />
+  </head>
+  <body onload="cursorBlink(1500);">
+    <div id="container">
+      <div id="header">
+        <a href="/">
+          <div id="lambda"/>
+          <h1 id="blog_title">
+            <span class="michael">
+              Michael
+            </span>
+            <span class="xavier">
+              Xavier
+            </span>
+          </h1>
+        </a>
+        <h2 id="blog_tagline">
+          blog &#36; takeWhile safeForWork thoughts
+          <span id="cursor" />
+        </h2>
+
+        <h3 id="links">
+          <a href="/pages/projects.html">
+            Projects
+          </a>
+          <a href="http://github.com/MichaelXavier">
+            GitHub
+          </a>
+          <a href="/files/resume.pdf">
+            Resume
+          </a>
+          <a href="mailto:michael@michaelxavier.net">
+            Email
+          </a>
+          <a href="/posts.html">
+            All Posts
+          </a>
+          <a href="/rss.xml">
+            RSS
+          </a>
+        </h3>
+
+      <div id="body">
+        $body$
+      </div>
+
+      <div id="footer">
+        <div id="copyright">
+          Copyright &copy; 2010-2011 Michael Xavier
+        </div>
+        <div id="hakyll">
+          Site generated with 
+          <a href="http://jaspervdj.be/hakyll/" target="_blank">hakyll</a>
+          .
+        </div>
+      </div>
+    </div>
+    <script src="/javascripts/application.js" type="text/javascript" charset="utf-8" />
+  </body>
+</html>

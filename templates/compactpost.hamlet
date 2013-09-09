@@ -1,6 +1,0 @@
-<li .compact_post>
-  <a href="#{url}">#{title}
-  <span .date>
-    #{date}
-  <div .comment_count>
-    <a href="#{url}#disqus_thread">Comments

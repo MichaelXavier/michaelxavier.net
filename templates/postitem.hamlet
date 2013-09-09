@@ -1,9 +1,0 @@
-<li .post>
-  <h1 .title>
-    <a href="#{url}">#{title}
-  <div .date>
-    #{date}
-  <div .post_body>
-    #{content}
-  <div .comment_count>
-    <a href="#{url}#disqus_thread">Comments

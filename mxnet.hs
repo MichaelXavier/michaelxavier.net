@@ -1,78 +1,92 @@
+--------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
+import           Control.Applicative((<$>))
+import           Data.Monoid ((<>))
+import           Hakyll
 
-import Prelude hiding (id)
-import Control.Category (id)
-import Control.Arrow ((>>>), (***), arr)
-import Data.Monoid (mempty, mconcat)
-import Hakyll
-
+--------------------------------------------------------------------------------
 main :: IO ()
 main = hakyll $ do
-  match "css/*" $ do
-    route idRoute
-    compile compressCssCompiler
+    match "images/*" straightCopy
+    match "assets/**/*" straightCopy
+    match "javascripts/*" straightCopy
+    match "files/*" straightCopy
 
-  match "images/*" straightCopy
+    create ["rss.xml"] $ do
+      route idRoute
+      compile $ do
+        let feedCtx = postCtx <> bodyField "description"
+        posts <- recentFirst =<< loadAllSnapshots "posts/*" "content"
+        renderRss feedConf feedCtx posts
 
-  match "assets/*" straightCopy
-  match "assets/**/*" straightCopy
+    match "css/*" $ do
+      route   idRoute
+      compile compressCssCompiler
 
-  match "javascripts/*" straightCopy
+    match "posts/*" $ do
+      route $ setExtension "html"
+      compile $ pandocCompiler
+        >>= saveSnapshot "content"
+        >>= loadAndApplyTemplate "templates/post.html"   postCtx
+        >>= loadAndApplyTemplate "templates/layout.html" postCtx
+        >>= relativizeUrls
 
-  match "files/*" straightCopy
+    match "pages/*" $ do
+      route $ setExtension "html"
+      compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/page.html"   postCtx
+        >>= loadAndApplyTemplate "templates/layout.html" postCtx
+        >>= relativizeUrls
 
-  match "templates/*" $ compile templateCompiler
+    create ["posts.html"] $ do
+      route idRoute
+      compile $ do
+        posts <- recentFirst =<< loadAll "posts/*"
+        let archiveCtx = listField "posts" postCtx (return posts) <>
+                         constField "title" "Posts"               <>
+                         defaultContext
+        makeItem ""
+            >>= loadAndApplyTemplate "templates/posts.html" archiveCtx
+            >>= loadAndApplyTemplate "templates/layout.html" archiveCtx
+            >>= relativizeUrls
 
-  match "pages/*" $ do
-    route $ setExtension ".html"
-    compile $ pageCompiler
-      >>> arr (copyBodyToField "content")
-      >>> applyTemplateCompiler "templates/page.hamlet"
-      >>> applyTemplateCompiler "templates/layout.hamlet"
-      >>> relativizeUrlsCompiler
+    match "index.html" $ do
+      route idRoute
+      compile $ do
+        posts <- fmap (take postsOnPage) . recentFirst =<< loadAllSnapshots "posts/*" "content"
+        
+        let indexCtx = listField "posts" postCtx (return posts) <>
+                       constField "title" "Home"                <>
+                       defaultContext
 
-  match "posts/*" $ do
-    route $ setExtension ".html"
-    compile $ pageCompiler
-      >>> arr (renderDateField "date" "%B %e, %Y" "Date unknown")
-      >>> arr (copyBodyToField "content")
-      >>> applyTemplateCompiler "templates/post.hamlet"
-      >>> applyTemplateCompiler "templates/layout.hamlet"
-      >>> relativizeUrlsCompiler
+        getResourceBody
+          >>= applyAsTemplate indexCtx
+          >>= loadAndApplyTemplate "templates/layout.html" indexCtx
+          >>= relativizeUrls
 
-  match "posts.html" $ route idRoute
-  create "posts.html" $ constA mempty
-    >>> arr (setField "title" "Posts")
-    >>> setFieldPageList recentFirst "templates/compactpost.hamlet" "posts" "posts/*"
-    >>> applyTemplateCompiler "templates/index.hamlet"
-    >>> applyTemplateCompiler "templates/layout.hamlet"
+    match "templates/*" $ compile templateCompiler
 
-  match  "index.html" $ route idRoute
-  create "index.html" $ constA mempty
-    >>> arr (setField "title" "Home")
-    >>> requireAllA "posts/*" (id *** arr (take 5 . reverse . chronological) >>> addPostList)
-    >>> applyTemplateCompiler "templates/index.hamlet"
-    >>> applyTemplateCompiler "templates/layout.hamlet"
-    >>> relativizeUrlsCompiler
 
-  match "rss.xml" $ route idRoute
-  create "rss.xml" $ requireAll_ "posts/*" >>> renderRss feedConfiguration
+--------------------------------------------------------------------------------
+postsOnPage :: Int
+postsOnPage = 5
 
-addPostList :: Compiler (Page String, [Page String]) (Page String)
-addPostList = setFieldA "posts" $
-    arr (reverse . chronological)
-        >>> require "templates/postitem.hamlet" (\p t -> map (applyTemplate t) p)
-        >>> arr mconcat
-        >>> arr pageBody
+postCtx :: Context String
+postCtx =
+    dateField "date" "%B %e, %Y" <>
+    field "postbody" (return . itemBody) <>
+    defaultContext
 
-straightCopy :: RulesM (Pattern CopyFile)
+straightCopy :: Rules ()
 straightCopy = do
   route idRoute
   compile copyFileCompiler
 
-feedConfiguration :: FeedConfiguration
-feedConfiguration = FeedConfiguration { feedTitle       = "MichaelXavier.net - Infrequently Blogging on Ruby, Haskell, and Other CS stuff.",
-                                        feedDescription = "Personal blog of Michael Xavier",
-                                        feedAuthorName  = "Michael Xavier",
-                                        feedRoot        = "http://www.michaelxavier.net" }
+feedConf :: FeedConfiguration
+feedConf = FeedConfiguration
+    { feedTitle       = "michaelxavier.net Blog"
+    , feedDescription = "The development blog of Michael Xavier"
+    , feedAuthorName  = "Michael Xavier"
+    , feedAuthorEmail = "michael@michaelxavier.net"
+    , feedRoot        = "http://michaelxavier.net"
+    }

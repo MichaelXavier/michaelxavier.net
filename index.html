@@ -1,0 +1,18 @@
+<ul class="posts">
+  $for(posts)$
+    <li class="post">
+      <h1 class="title">
+        <a href="$url$">$title$</a>
+      </h1>
+      <div class="date">
+        $date$
+      </div>
+      <div class="post_body">
+        $postbody$
+      </div>
+      <div class="comment_count">
+        <a href="$url$#disqus_thread">Comments</a>
+      </div>
+    </li>
+  $endfor$
+</ul>

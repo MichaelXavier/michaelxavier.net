@@ -1,6 +1,0 @@
-<div #article>
-  <div .post>
-    <h1 .title>
-      #{title}
-    <div .body>
-      #{content}
