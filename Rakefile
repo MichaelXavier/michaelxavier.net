@@ -4,9 +4,15 @@ desc "Create a post. Set the TITLE env var"
 task :post do
   require 'fileutils'
 
-  title = ENV.fetch('TITLE').gsub(/[^\w]/, '-').squeeze('-')
-  filename = "posts/#{Time.now.strftime('%Y-%m-%d')}-#{title}.markdown"
-  FileUtils.touch(filename)
+  raw_title = ENV.fetch('TITLE')
+  title     = raw_title.gsub(/[^\w]/, '-').squeeze('-')
+  filename  = "posts/#{Time.now.strftime('%Y-%m-%d')}-#{title}.markdown"
+  File.open(filename, 'w') {|f| f.puts(<<-EOF)}
+---
+title: #{raw_title}
+categories: 
+---
+EOF
   exec("#{ENV.fetch('EDITOR')} #{filename}")
 end
 
