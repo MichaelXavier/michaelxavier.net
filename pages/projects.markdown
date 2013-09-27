@@ -1,3 +1,7 @@
+---
+title: Projects
+---
+
 ## Vigilance
 An Extensible Dead Man's Switch System
 
