@@ -1,6 +1,8 @@
----
-title: Projects
----
+## Vigilance
+An Extensible Dead Man's Switch System
+
+* [Github](http://github.com/MichaelXavier/vigilance)
+* [HackageDB](http://hackage.haskell.org/package/vigilance)
 
 ## Angel (Maintainer)
 Process Monitoring/Management, Like Daemontools
