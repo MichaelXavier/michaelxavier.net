@@ -17,7 +17,7 @@ Ruby/Rails, Web Development, as well as Haskell.
 # Work Experience
 
 ## CrystalCommerce - Mountlake Terrace, WA
-### 2012-Present
+### 2010-Present
 
 * Started as an intern and progressed to a lead developer.
 * Working a large Ruby on Rails eCommerce and catalog platform.
