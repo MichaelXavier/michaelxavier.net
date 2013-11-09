@@ -22,12 +22,14 @@ Ruby/Rails, Web Development, as well as Haskell.
 * Started as an intern and progressed to a lead developer.
 * Working a large Ruby on Rails eCommerce and catalog platform.
 * Responsibilities include:
-  * Maintaining and extending all aspects of the system
-  * Slowly replacing large amounts of legacy code while supporting an active
-    user base.
-  * Onboarding/training/supporting new developers
-  * Advised in product development
-  * Large amounts of pair programming and collaborative development
+    * Maintaining and extending all aspects of the system
+    * REST API design, implementation, and documentation
+    * Building a multitude of reliable 3rd party service integrations.
+    * Slowly replacing large amounts of legacy code while supporting an active
+      user base.
+    * Onboarding/training/supporting new developers
+    * Advised in product development
+    * Large amounts of pair programming and collaborative development
 
 ## San Diego Computers - San Diego, CA
 ### 2005-2010
@@ -36,6 +38,19 @@ Ruby/Rails, Web Development, as well as Haskell.
 * Ended up building several back-office Ruby on Rails applications to
   streamline day to day operations and customer processing.
 * Maintained several servers and backup systems.
+* All work was remote. Learned time management and remote collaboration skills.
+
+# Skills
+
+* *Ruby* - Expert-level experience with Ruby design patterns, testing
+  practices, language features, metaprogramming, web development, etc.
+* *Ruby on Rails* - Working with Rails has been my primary job for the last 3
+  years. Intimately familiar with all of its strengths, weaknesses, and
+  idiosyncrasies.
+* *Haskell* - Have been studying Haskell and working on open source Haskell
+  projects for the past 3 years. I am committed to constantly improving my
+  Haskell skills and helping to grow the Haskell community and improve
+  Haskell's library parity with other languages.
 
 # Open Source Development
 
@@ -52,6 +67,10 @@ in Ruby and Haskell.
 # Education
 
 * 2010 - BS in Computing and Software Systems from University of Washington Bothell
+    * Completed coursework in HCI (Human/Computer Interaction)
+    * Completed coursework in compilers/parsers.
+    * Did independent study on applying test-driven development to existing
+      codebases.
 * 2006 - Graduated with honors from Granite Falls High School
 
 # Footnotes
