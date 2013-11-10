@@ -67,7 +67,7 @@ in Ruby and Haskell.
 # Education
 
 * 2010 - BS in Computing and Software Systems from University of Washington Bothell
-    * Completed coursework in HCI (Human/Computer Interaction)
+    * Completed coursework in HCI (Human/Computer Interaction) and UX.
     * Completed coursework in compilers/parsers.
     * Did independent study on applying test-driven development to existing
       codebases.
