@@ -3,6 +3,9 @@
 import           Control.Applicative((<$>))
 import           Data.Monoid ((<>))
 import           Hakyll
+import           System.Cmd (system)
+import           System.FilePath (replaceExtension, takeDirectory)
+import           Text.Pandoc as Pandoc
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -37,6 +40,16 @@ main = hakyll $ do
         >>= loadAndApplyTemplate "templates/page.html"   postCtx
         >>= loadAndApplyTemplate "templates/layout.html" postCtx
         >>= relativizeUrls
+
+    -- match "pages/resume.markdown" $ version "pdf" $ do
+    --   route   $ setExtension ".pdf"
+    --   compile $ do
+    --       resumeTpl <- loadBody "templates/resume.tex"
+    --       getResourceBody
+    --           >>= (return . readPandoc)
+    --           >>= (return . fmap (Pandoc.writeLaTeX Pandoc.def))
+    --           >>= applyTemplate resumeTpl defaultContext
+    --           >>= pdflatex
 
     create ["posts.html"] $ do
       route idRoute
@@ -90,3 +103,18 @@ feedConf = FeedConfiguration
     , feedAuthorEmail = "michael@michaelxavier.net"
     , feedRoot        = "http://michaelxavier.net"
     }
+
+-- | Hacky.
+pdflatex :: Item String -> Compiler (Item TmpFile)
+pdflatex item = do
+    TmpFile texPath <- newTmpFile "pdflatex.tex"
+    let tmpDir  = takeDirectory texPath
+        pdfPath = replaceExtension texPath "pdf"
+
+    unsafeCompiler $ do
+        writeFile texPath $ itemBody item
+        _ <- system $ unwords ["pdflatex",
+            "-output-directory", tmpDir, texPath, ">/dev/null", "2>&1"]
+        return ()
+
+    makeItem $ TmpFile pdfPath

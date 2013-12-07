@@ -64,6 +64,10 @@ to Ruby projects.
 I maintian a blog[^3] where I write about software engineering and techniques
 in Ruby and Haskell.
 
+[^1]: [http://michaelxavier.net/projects.html](http://michaelxavier.net/projects.html)
+[^2]: [http://github.com/MichaelXavier](http://github.com/MichaelXavier)
+[^3]: [http://michaelxavier.net](http://michaelxavier.net)
+
 # Education
 
 * 2010 - BS in Computing and Software Systems from University of Washington Bothell
@@ -72,8 +76,3 @@ in Ruby and Haskell.
     * Did independent study on applying test-driven development to existing
       codebases.
 * 2006 - Graduated with honors from Granite Falls High School
-
-# Footnotes
-[^1]: [http://michaelxavier.net/projects.html](http://michaelxavier.net/projects.html)
-[^2]: [http://github.com/MichaelXavier](http://github.com/MichaelXavier)
-[^3]: [http://michaelxavier.net](http://michaelxavier.net)
