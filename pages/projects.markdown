@@ -14,6 +14,12 @@ Process Monitoring/Management, Like Daemontools
 * [Github](http://github.com/MichaelXavier/Angel)
 * [HackageDB](http://hackage.haskell.org/package/angel)
 
+## phash for Haskell
+Haskell bindings for pHash, the open source perceptual hashing library
+
+* [Github](http://github.com/MichaelXavier/phash)
+* [HackageDB](http://hackage.haskell.org/package/phash)
+
 ## Bucketeer
 HTTP service for leaky bucket-style rate limiting, written in Haskell.
 
