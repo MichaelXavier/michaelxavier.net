@@ -21,6 +21,7 @@ Ruby/Rails, Web Development, as well as Haskell.
 
 * Started as an intern and progressed to a lead developer.
 * Working a large Ruby on Rails eCommerce and catalog platform.
+* Designed and implemented a moderately sized application using Typescript and AngularJS
 * Responsibilities include:
     * Maintaining and extending all aspects of the system
     * REST API design, implementation, and documentation
@@ -34,7 +35,7 @@ Ruby/Rails, Web Development, as well as Haskell.
 ## San Diego Computers - San Diego, CA
 ### 2005-2010
 
-* Started with parts procurement 
+* Started with parts procurement
 * Ended up building several back-office Ruby on Rails applications to
   streamline day to day operations and customer processing.
 * Maintained several servers and backup systems.
@@ -47,10 +48,14 @@ Ruby/Rails, Web Development, as well as Haskell.
 * *Ruby on Rails* - Working with Rails has been my primary job for the last 3
   years. Intimately familiar with all of its strengths, weaknesses, and
   idiosyncrasies.
-* *Haskell* - Have been studying Haskell and working on open source Haskell
-  projects for the past 3 years. I am committed to constantly improving my
-  Haskell skills and helping to grow the Haskell community and improve
-  Haskell's library parity with other languages.
+* *Haskell* - Have been studying Haskell and working on open source
+  Haskell projects for the past 3 years. I am committed to constantly
+  improving my Haskell skills and helping to grow the Haskell
+  community and improve Haskell's library parity with other
+  languages. I have released several open source libraries in Haskell.
+* *TypeScript* Have developed and maintained several moderately-sized
+  Typescript codebases for the purpose of driving an AngularJS
+  application which I have also designed and maintained.
 
 # Open Source Development
 
