@@ -44,5 +44,7 @@ end
 
 desc "upload generated site"
 task :upload => :build do
- sh 'rsync -aP -e ssh _site/ mxn:"~/public_html/"'
+  chdir '_site' do
+    sh 'find * -type f -print | s3funnel michaelxavier.net PUT -t 4 --put-full-path -v'
+  end
 end
