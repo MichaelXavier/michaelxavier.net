@@ -31,12 +31,25 @@ main = hakyll $ do
         >>= loadAndApplyTemplate "templates/layout.html" postCtx
         >>= relativizeUrls
 
+    match "pages/resume.markdown" $ do
+      route $ setExtension "html"
+      compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/page.html"   postCtx
+        >>= loadAndApplyTemplate "templates/minimal_layout.html" postCtx
+        >>= relativizeUrls
+
     match "pages/*" $ do
       route $ setExtension "html"
       compile $ pandocCompiler
         >>= loadAndApplyTemplate "templates/page.html"   postCtx
         >>= loadAndApplyTemplate "templates/layout.html" postCtx
         >>= relativizeUrls
+
+    -- create ["pages/resume-min.html"] $ do
+    --   route (setExtension "html") "pages/resume.html"
+    --   compile $ pandocCompiler
+    --     >>= loadAndApplyTemplate "templates/page.html"   postCtx
+    --     >>= relativizeUrls
 
     create ["posts.html"] $ do
       route idRoute
@@ -54,7 +67,7 @@ main = hakyll $ do
       route idRoute
       compile $ do
         posts <- fmap (take postsOnPage) . recentFirst =<< loadAllSnapshots "posts/*" "content"
-        
+
         let indexCtx = listField "posts" postCtx (return posts) <>
                        constField "title" "Home"                <>
                        defaultContext
