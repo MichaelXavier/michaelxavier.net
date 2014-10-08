@@ -1,0 +1,68 @@
+* Cabal Test Suite Best Practice
+  I've beem coming across a lot of great best practices ever since
+  I've started my first Haskell gig. I'm going to try to post more
+  generally useful things I learn them.
+** Best Practice: Depend on Your Library in Test Suite
+   99% of the time when I'm creating a library, I'm going to have the
+   test suite in the same cabal file. Recent versions of cabal are
+   smart and will resolve dependencies within the file first. This is
+   /much/ better than the alternative, which is to copy _and maintain_
+   the dependencies for the library in the test suite. That becomes a
+   huge maintenance liability for no reason.
+
+   Say you have a directory structure like
+
+   #+BEGIN_SRC
+   mypkg
+   ├── src
+   │   └── MyPkg.hs
+   └── test
+       └── src
+           └── MyPkgTests.hs
+   #+END_SRC
+
+   where your library source is in =src= and your test source is in
+   =test/src=. You would then create a cabal file that looked
+   something like:
+
+   #+BEGIN_SRC haskell-cabal
+     name: mypkg
+     -- snip
+     library
+       hs-source-dirs: src
+
+       build-depends:
+            specific-package >= 1.1 && < 1.2
+            -- snip
+
+     test-suite test
+       type: exitcode-stdio-1.0
+       main-is: Main.hs
+       hs-source-dirs:
+         test/src
+
+       build-depends:
+            mypkg
+         ,  specific-package
+         -- snip
+   #+END_SRC
+
+
+   A few things to note:
+
+   * I nail down dependency versions to my liking in the library
+     section.
+   * The test section depends on =mypkg= and is not explicit about
+     dependencies that will be dragged in by =mypkg=. You actually
+     don't even need to include these /unless you directly use code
+     from these dependencies in your tests/
+   * Last, and most importantly /do not put src in the hs-source-dirs
+     of the test suite/. If you do, this trick won't work. Only put
+     your test source dir in this section.
+
+   For the longest time I couldn't figure out how to do this and ended
+   up with really verbose and hard to maintain cabal files. I knew
+   other people did it this way but I never picked up on the
+   =hs-source-dirs= clause being the deciding factor until someone on
+   =#haskell= pointed it out to me.
+
