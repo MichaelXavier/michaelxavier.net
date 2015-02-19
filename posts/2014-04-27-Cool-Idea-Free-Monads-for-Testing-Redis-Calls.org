@@ -1,0 +1,176 @@
+---
+title: Cool Idea: Free Monads for Testing Redis Calls
+---
+In my time learning Haskell and working on various open source
+projects, I’ve toyed with using free monads but never really had much
+success. They sort of clicked with me recently with an idea that I
+wanted to share.
+
+I will not attempt to explain free monads in detail or the idea that
+I’m using here. Gabriel Gonzalez did a great job of that in [[http://www.haskellforall.com/2012/07/purify-code-using-free-monads.html][Purify
+code using free monads]]. The general idea at play here though is that
+free monads allow you to represent an AST of a sequential program as a
+data type and get a monad for free to program in it cleanly using
+monad do syntax as you would in IO, but get lots of flexibility from
+it.
+
+* Example: Redis Calls
+
+  [[http://redis.io][Redi]]s is an in-memory key/valu e database with optional
+  persistence. Let’s say you had a portion of your program that read and
+  wrote from the redis database in IO. The code with the redis driver
+  would look something like:
+
+  #+begin_src haskell
+  foo :: Conn -> IO ()
+  foo c = do
+    mv <- get c "foo"
+    case mv of
+      Nothing -> return ()
+      Just v -> multi c $ do
+        put c "foo1" v
+        put c "foo2" v
+  #+end_src
+
+
+  So we see a subset of the redis commands we support:
+
+  1. =get :: Conn -> String -> IO (Maybe String)=: get a value by key from the db
+  2. =put :: Conn -> String -> String -> IO ()=: put a value into the db by key.
+  3. =multi :: Conn -> (IO ()) -> IO ()=: execute a transaction. Note
+             that you cannot extract a value out of a transaction.
+
+  Here’s the problem though: this is inconvenient to test. In Haskell,
+  we try to push as much of our program out of IO and into pure
+  functions because they are fast, deterministic, and have referential
+  transparency to boot. To test this, it forces us to go all in and test
+  in IO land. We’d have to run this action with the connection and then
+  take that connection and query the state of the database for the
+  expected data. This isn’t really what we are after though when we are
+  testing our program logic. We can probaby trust the vendors of the
+  database and the client to have implemented simple get/put
+  correctly. Or at the very least, we’d like to just have a small
+  handful of integration tests that smoke test the actual database, but
+  it would be great if we could have a battery of unit tests or even
+  property tests against a pure model of what we’re doing in the
+  database. That’s where the free monad comes in.
+
+* Enter the Free Monad
+
+  We are going to use a free monad to build a very tight set of commands
+  just for interacting with redis. Like in Gabriel’s post, I’m going to
+  use the [[http://hackage.haskell.org/package/free][free package]] for its nice TH helper to reduce boilerplate.
+
+  #+begin_src haskell
+  {-# LANGUAGE TemplateHaskell #-}
+  {-# LANGUAGE DeriveFunctor #-}
+  {-# LANGUAGE FlexibleContexts #-}
+  import Control.Monad.Free
+  import Control.Monad.Free.TH
+
+  data RedisCmd next = Get' String (Maybe String -> next) |
+                       Put' String String next      |
+                       Multi' (RedisCmdM ()) next deriving (Functor)
+
+  type RedisCmdM = Free RedisCmd
+
+  makeFree ''RedisCmd
+  #+end_src
+
+
+  =makeFree= will generate downcased versions of the commands, =get'=, =put'=,
+  and =multi'=. =get'=’s type, for example is =MonadFree RedisCmd m =>
+  String -> m String=. Now let’s convert our trivial redis block in IO
+  into one in our RedisCmdM free monad:
+
+  #+begin_src haskell
+  foo :: RedisCmdM ()
+  foo c = do
+    mv <- get' "foo"
+    case mv of
+      Nothing -> return ()
+      Just v -> multi' $ do
+        put "foo1" v
+        put "foo2" v
+  #+end_src
+
+  Easy! All we did was postfix all commands with a quote and removed any
+  references to the connection. Now comes the fun part. We can write 3
+  interpreters for the RedisCmd free monad:
+
+  1. An interactive one for debugging on the command line.
+  2. An IO one that uses our connection stashed in a MonadReader for convenience.
+  3. A test harness one that mimmicks redis’ operations using a =Map String String= under the hood. We can run this in the state monad and dissect the resultant state at the end.
+
+  #+begin_src haskell
+  import Control.Monad.State
+  import Control.Monad.Free
+  import Control.Monad.Free.TH
+  import Data.Map (Map)
+  import qualified Data.Map as M
+
+  runDebug :: RedisCmdM a -> IO a
+  runDebug = iterM run
+    where
+      run :: RedisCmd (IO a) -> IO a
+      run (Get' k f) = do
+        putStrLn $ unwords ["GET", k]
+        f . Just =<< getLine
+      run (Put' k v n) = do
+        putStrLn $ unwords ["PUT", k, v]
+        n
+      run (Multi' txn n) = do
+        putStrLn "MULTI"
+        runStdIO txn
+        putStrLn "EXEC"
+        n
+
+  type FakeDB = Map String String
+
+  runTest :: MonadState FakeDB m => RedisCmdM a -> m a
+  runTest = iterM run
+    where
+      run (Get' k f) = f =<< gets (M.lookup k)
+      run (Put' k v n) = do
+        modify $ M.insert k v
+        n
+      run (Multi' txn n) = do
+        runLocal txn
+        n
+
+  runRedis :: (MonadState Conn m, MonadIO m) => RedisCmdM a -> m a
+  runRedis = withConn \c -> iterM (run c)
+    where
+      run c (Get' k f) = f =<< get c k
+      run c (Put' k v n) = put c k v >> n
+      run c (Multi' txn n) = multi c txn >> n
+      withConn action = liftIO (action <$> db)
+  #+end_src
+
+* Conclusion
+
+  I think this is a really cool use of Free monads. I like this approach
+  a lot more than using the real database because hitting the real
+  database is expensive and requires us to devote work to cleanup. It
+  also means every test, even property tests (which by all rights should
+  be pure) must either rely on a database or you may even end up writing
+  less rigorous tests.
+
+  I also think this is a bit more effective than interacting with a
+  mocked out data store like you’d find in Ruby. We still get to observe
+  the affected state of the world but on our own, much simpler terms. We
+  saw the opportunity present itself that the redis database is really
+  just like a map and exploited it to write a simplified backend for
+  testing in very few lines of code. Furthermore, we concentrated all
+  the risky, impure code into a single interpreter which can be applied
+  when the time is right: in integration testing and in the final
+  product.
+
+  One potential downside is that it requires you to chunk your
+  operations to redis into contiguous blocks. You can’t easily
+  interleave actions hitting other resources. One could make the
+  argument that you probably shouldn’t be doing that interleaving in the
+  first place, but there may be situations where it is unavoidable. In
+  those situations, the right approach may be to aggregate these blocks
+  as best you can and then leave it to their respective IO interpreters
+  to do the interleaving
