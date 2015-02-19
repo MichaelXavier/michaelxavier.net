@@ -7,5 +7,5 @@ Haskell.
 This code is intended to help anyone looking to build their own site using
 hakyll. Note that most of the code is cobbled together using a *very*
 rudimentary understanding of arrows and plenty of unabashed copying from other
-hakyll-generated sites. To see how they did it, check out these 
+hakyll-generated sites. To see how they did it, check out these
 [other examples](http://jaspervdj.be/hakyll/examples.html).
