@@ -85,7 +85,7 @@ it.
 
   #+begin_src haskell
   foo :: RedisCmdM ()
-  foo c = do
+  foo = do
     mv <- get' "foo"
     case mv of
       Nothing -> return ()
@@ -121,7 +121,7 @@ it.
         n
       run (Multi' txn n) = do
         putStrLn "MULTI"
-        runStdIO txn
+        runDebug txn
         putStrLn "EXEC"
         n
 
@@ -135,11 +135,11 @@ it.
         modify $ M.insert k v
         n
       run (Multi' txn n) = do
-        runLocal txn
+        runTest txn
         n
 
   runRedis :: (MonadState Conn m, MonadIO m) => RedisCmdM a -> m a
-  runRedis = withConn \c -> iterM (run c)
+  runRedis = withConn $ \c -> iterM (run c)
     where
       run c (Get' k f) = f =<< get c k
       run c (Put' k v n) = put c k v >> n

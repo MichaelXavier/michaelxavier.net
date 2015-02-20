@@ -8,4 +8,4 @@ assets/*.*
 assets/**/*.*
 .cabal-sandbox
 cabal.sandbox.config
-dist
+.envrc
