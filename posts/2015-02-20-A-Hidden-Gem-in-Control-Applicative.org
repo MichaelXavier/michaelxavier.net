@@ -1,0 +1,127 @@
+---
+title: Hidden Gem in Control.Applicative
+---
+The other day I was looking through some haskell code and found a
+curious little combinator: [[https://hackage.haskell.org/package/base-4.7.0.2/docs/Control-Applicative.html#v:-60--36-][<$]]. At first I thought it was =<$>=, the
+infix alias for =fmap=. I'm so used to seeing =<$>= because I see and
+write it many times a day. I decided to look it up on the official
+haddocks to see what was going on. The description is:
+
+#+BEGIN_QUOTE
+  Replace all locations in the input with the same value. The default
+  definition is fmap . const, but this may be overridden with a more
+  efficient version.
+#+END_QUOTE
+
+I know I've read that before and didn't understood it. Locations?
+What's that supposed to mean? Why would I want to use this? "Whatever,
+I'll probably never need it," I thought. And so I never ended up using
+=<$= until now, and that's a real shame. Let's take a closer look at
+the documentation and the type and see if we can figure out what it
+means.
+
+
+The type is
+
+#+begin_src haskell
+(<$) :: Functor f => a -> f b -> f a
+#+end_src
+
+So we only require a =Functor= constraint to use it. As Bartosz
+Milewski notes, [[http://bartoszmilewski.com/2014/01/14/functors-are-containers/][Functors are Containers]]. Remembering this analogy of
+"Containers" made the "locations" phrasing click for me. A list is a
+functor, and intuitively, locations in a list are the elements. So
+let's see what it looks like to replace all locations in the input
+with the "same value", or the first argument:
+
+#+begin_src haskell
+Prelude Control.Applicative> 3 <$ [7,8,9]
+[3,3,3]
+#+end_src
+
+Ah ha! This makes sense too, looking at the type.
+
+
+* A Closer Look at the Types
+
+The first argument is of type =a=, the second =f b=, a container of
+=b=. And that's the last time we see =b=. The *only* thing =Functor=
+provides us is
+
+#+begin_src haskell
+fmap :: Functor f => (a -> b) -> f a -> f b
+#+end_src
+
+
+Given we know nothing about =a= and =b=, this only lets us apply a
+function to every "location" in a functor/container. There's no
+breaking out early, nor adding new elements. =<$= doesn't even take a
+function, just a single value of =a=. It knows nothing about =a= and
+nothing about =f b= except how to map over it. It couldn't even return
+an "empty" =f b= because functor doesn't give it the tools to do
+that. The *only* thing =<$= can do is replace each location in the
+functor with the given =a= and indeed the only implementation it can
+have is the one it has, =fmap . const=. Pretty cool!
+
+
+So back to the list example. I guess this could be helpful. You could
+imagine a list or =Map= of items to validate and some condition
+causing you to replace all values with some invalidated value. Or
+maybe a list of tests and we want to replace them all with failures. This is
+a bit of a stretch though. There is a much more useful case...
+
+* The Killer Feature: Parsers
+
+Haskell parsers tend to be Applicative Functors and are really nice to
+use so you end up using them a lot. You may be writing an Applicative
+parser for command line options using [[https://hackage.haskell.org/package/optparse-applicative][optparse-applicative]], a parser
+using [[https://hackage.haskell.org/package/attoparsec][attoparsec]], or a =FromJSON= instance in [[https://hackage.haskell.org/package/aeson][aeson]]. In any of these
+scenarios, if you find yourself parsing some fixed token, =<$= can
+help!
+
+Let's say we've got the following type:
+
+#+begin_src haskell
+data Status = Staged | Running | Finished
+#+end_src
+
+
+I've been writing parsers like this for some time:
+
+#+begin_src haskell
+string :: Text -> Parser Text
+
+parseStatus :: Parser Status
+parseStatus = parseStaged <|> parseRunning <|> parseFinished
+  where
+    parseStaged   = string "Staged" *> pure Staged
+    parseRunning  = string "Running" *> pure Running
+    parseFinished = string "Finished" *> pure Finished
+#+end_src
+
+=Parser= is a =Functor=, =Applicative=, and =Alternative= (which gives
+us =<|>=). This is where its hard to apply the description =<$= of
+replacing all "locations" in a functor. What are locations in a
+parser? In this case the type is more illuminating. The =f b= in the
+type is =Parser Text=. =f= is =Parser=, and =b= is =Text=. We want to
+throw out the =Text= once this parser succeeds and replace it with our
+token. So we instead can write:
+
+#+begin_src haskell
+parseStatus :: Parser Status
+parseStatus = parseStaged <|> parseRunning <|> parseFinished
+  where
+    parseStaged   = Staged <$ string "Staged"
+    parseRunning  = Running <$ string "Running"
+    parseFinished = Finished <$ string "Finished"
+#+end_src
+
+This feels nicer. We no longer have to "lift" the value into the
+parser with =pure=. You can read this as "the result is Staged if I'm
+given a the string 'Staged'".
+
+This little thought exercise has helped underscore the importance of
+reasoning with the tools that typeclasses give us. The simpler
+typeclasses have this great property of being extremely polymorphic,
+which at once makes them very powerful in their use and very
+constrained in their implementations.
