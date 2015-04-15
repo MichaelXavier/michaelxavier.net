@@ -1,0 +1,101 @@
+---
+title: Adding a UUID Column to a Persistent Table
+---
+
+This is just a quick snippet I've been meaning to post for a few
+weeks. A few weeks ago I needed to add a Postgres UUID column to one
+of my tables using Persistent. I dug around and all I found were
+vague, closed tickets, and old irrelevant blog posts on the Yesod site
+that mentioned UUIDs but didn't give any good examples. The solution
+ended up being simple but I hope it helps someone else who is having
+this problem, or more likely, future me when I forget how this is
+done.
+
+Let's say you've got some schema TH that looks like:
+
+#+begin_src haskell
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+Person
+    name String
+    age Int Maybe
+    deriving Show
+|]
+#+end_src
+
+We want to:
+
+1. Add a UUID column to Person.
+2. Give it a default value so any existing columns are backfilled.
+3. Give it a unique index for fast lookups and guaranteed uniqueness.
+4. Wrap it in a distinct type to avoid confusing it with other UUIDs,
+   much like how persistent gives us distinct types for primary keys.
+
+
+Our schema TH now looks like:
+
+#+begin_src haskell
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+Person
+    name String
+    age Int Maybe
+    uuid PersonUUID default=uuid_generate_v4()
+    UniquePersonUUID uuid
+
+    deriving Show
+|]
+#+end_src
+
+In a module accessible from your schema's you'll also add something
+like:
+
+#+begin_src haskell
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
+module MyApp.Schema where
+
+import Control.Error
+import Control.Lens
+import Data.ByteString (ByteString)
+import Data.UUID
+import System.Random
+
+newtype PersonUUID = PersonUUID {
+      _personUuid :: UUID
+    } deriving (Show, Eq, Ord, Random)
+
+makeLenses ''PersonUUID
+
+instance PersistFieldSql PersonUUID where
+  sqlType = const $ SqlOther "uuid"
+
+instance PersistField PersonUUID where
+  toPersistValue = toPersistValueUUID personUuid
+  fromPersistValue = fromPersistValueUUID personUuid
+
+_ASCIIBytes :: Prism' ByteString UUID
+_ASCIIBytes = prism toASCIIBytes $ \bs -> note bs $ fromASCIIBytes bs
+
+toPersistValueUUID :: Iso' a UUID -> a -> PersistValue
+toPersistValueUUID i a = PersistDbSpecific $ a ^. i . re _ASCIIBytes
+
+fromPersistValueUUID :: Iso' a UUID -> PersistValue -> Either Text a
+fromPersistValueUUID i (PersistDbSpecific bs) =
+  note "Could not parse UUID" $ bs ^? _ASCIIBytes . from i
+fromPersistValueUUID _ x = Left $ "Invalid value for UUID: " <> showT x
+#+end_src
+
+Let's break this down a bit. First, we create a newtype around =UUID= to
+distinguish the type and then derive an =Iso= that can get us to and
+from the =UUID= via =makeLenses=. We also create a =Prism= between
+ByteString and UUID. I like to read prisms as the left type variable
+(=ByteString=) is the "wider" type and the right type variable
+(=UUID=) is the "narrow" one. That is to say, you know you can always go
+from the narrow type to the wide one but not necessarily the other
+way. Conveniently, =PersistDbSpecific= expects a =ByteString= so this
+is exactly what we need to serialize our type to the database.
+
+=note= is a great little function from the =errors= package of type
+=e -> Maybe a -> Either e a= that upgrades a =Maybe= into an =Either=.
+
+Lastly, you'll want to make sure that the =uuid-ossp= extension is
+enabled in your database. You can issue the command =CREATE EXTENSION IF NOT EXISTS "uuid-ossp";= to do so.
