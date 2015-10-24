@@ -1,0 +1,129 @@
+---
+title: Protect Ya Neck: Enhancing Type Safety of 3rd Party Libraries
+---
+
+Over the last few years I've been transitioning most of the software
+development work I do from dynamic programming languages that offer
+very little in the way of type safety (Ruby, JavaScript) to ones that
+offer more (TypeScript, Haskell, PureScript), with plenty of trips
+back and forth between the two camps. Because the grass is always
+greener on the other side, it is easy early on to attribute safety to
+a *language* and to have an overly simplified, overly generous
+definition of what safety is. With more experience under my belt, I've
+come to realize that type safety is not a checkbox, but more of a
+dial, and while the language you use may control how far in either
+direction that dial goes, it is for better or worse up to the user to
+turn the knob. While type-safety is supposed to be a tool where a
+machine assists you in building more reliable software, its
+effectiveness is still largely controlled by the user's knowledge and
+desire to protect themselves and their user. In the immortal words of
+The Wu:
+
+#+BEGIN_QUOTE
+  Aint a damn thing changed boy, protect ya neck.
+#+END_QUOTE
+
+I may make this a series. Future posts will likely be less rambly and
+will stick to providing a real world case where the language didn't
+automatically protect me, but rather where I recognized I was implementing
+something risky and chose to protect myself with the tools available.
+
+* Example: Externally-Typed Resources
+
+At work we use an instrumentation tool. It is conceptually pretty
+simple: it provides you with some simple tools to instrument your codes
+with a few different types of measurements, namely counters and
+timers. It provides a generic backend interface to allow you to ship
+the collected metrics off to external services for analysis. It is not
+unlike the =ekg= package.
+
+The interface reminds me a lot of redis. It offers some dead simple
+types where you specify an arbitrary string key and it stores the data
+there for later processing. Some pseudo-typed examples are:
+
+#+BEGIN_SRC haskell
+  -- | Increment a counter stored at the key by 1
+  incrementI :: String -> m ()
+  -- | Time a computation and store it as a sampling to key
+  timeI :: String -> m a -> m a
+#+END_SRC
+
+
+This is a usable, easy to understand interface for this library
+to have. You can't necessarily expect 3rd party libraries to go much
+beyond this. As a user though, this is completely unsafe. It would be
+very easy to mix up the keys and accidentally increment a timer or
+time a counter. Furthermore, if I had to work with the same timer or
+counter in multiple places in my code, I could easily mistype the key
+or change it in one place but not somewhere else and screw up my data.
+
+* Try GADTs!
+
+I don't indend to explain GADTs from first principles in this
+post. Plenty of other sources do that better. What I will explain is
+why I chose them. GADTs offer some nice properties for solving this
+problem:
+
+1. They can easily represent "phantom" type variables (I.E. type
+   variables representing types that are not actually members of the
+   data structure). This is a great way to lift some information up to
+   the type level and have the type checker do what its good at: keep
+   track of it for you.
+2. They can join values with disparate phantom types into a single
+   type for the times when you want to deal with them all in one
+   place.
+
+Here's the code I ended up using
+
+#+BEGIN_SRC haskell
+  data Counter
+  data Timer
+
+  data Metric a where
+    RequestTime :: Host -> Path -> Metric Timer
+    ErrorCount :: Metric Counter
+
+  toName :: Metric a -> String
+  toName (RequestTime h p) = "request-time-" <> h <> ":" <> p
+  toName ErrorCount = "error-count"
+
+  incrementI :: Metric Counter -> m ()
+  incrementI c = I.incrementI (toName c)
+
+  timeI :: Metric Timer -> m ()
+  timeI c = I.timeI (toName c)
+#+END_SRC
+
+This requires the =GADTs= and =EmptyDataDecls= extensions. Take note
+of a few things here:
+
+1. I use empty data declarations for the metric types. I don't
+   actually need to construct the value, I use it only at the type
+   level.
+2. I can use richer types than Strings in each Metric if I want
+   to. This is helpful for both expressiveness and to prevent type
+   mixups.
+3. I import the underlying library qualified under =I= and reexport
+   its functions with enriched types. Everywhere in my app I would
+   import this module and not the underlying library.
+4. All of the metrics my application supports are all in one place.
+5. I wait until the very last second before I use toName, which loses
+   type information.
+
+Another great thing is you can set up this barrier on the other side
+of the library as well. Say the underlying library provides these
+functions:
+
+#+BEGIN_SRC haskell
+  getCounter :: String -> m CounterValue
+  getTimer :: String -> m TimerValue
+#+END_SRC
+
+We can wrap those up again with our metric type and be sure that we
+can't be looking up a timer with a counter's key or vice versa:
+
+#+BEGIN_SRC haskell
+  getCounter :: Metric Counter -> m CounterValue
+  getTimer :: Metric Timer -> m TimerValue
+#+END_SRC
+

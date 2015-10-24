@@ -6,7 +6,7 @@ import           Hakyll
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith cfg $ do
     match "images/*" straightCopy
     match "assets/**/*" straightCopy
     match "javascripts/*" straightCopy
@@ -84,17 +84,23 @@ main = hakyll $ do
 postsOnPage :: Int
 postsOnPage = 5
 
+
+-------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
     field "postbody" (return . itemBody) <>
     defaultContext
 
+
+-------------------------------------------------------------------------------
 straightCopy :: Rules ()
 straightCopy = do
   route idRoute
   compile copyFileCompiler
 
+
+-------------------------------------------------------------------------------
 feedConf :: FeedConfiguration
 feedConf = FeedConfiguration
     { feedTitle       = "michaelxavier.net Blog"
@@ -103,3 +109,8 @@ feedConf = FeedConfiguration
     , feedAuthorEmail = "michael@michaelxavier.net"
     , feedRoot        = "http://michaelxavier.net"
     }
+
+
+-------------------------------------------------------------------------------
+cfg :: Configuration
+cfg = defaultConfiguration { deployCommand = "find _site -type f -print | s3funnel michaelxavier.net PUT -t 4 --put-full-path -v"}

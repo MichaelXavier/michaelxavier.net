@@ -144,3 +144,8 @@ li.post, #article .post {
 .compact_post .date {
   float: right;
 }
+
+blockquote {
+    font-style: italic;
+    color: #808080;
+}
