@@ -113,4 +113,4 @@ feedConf = FeedConfiguration
 
 -------------------------------------------------------------------------------
 cfg :: Configuration
-cfg = defaultConfiguration { deployCommand = "find _site -type f -print | s3funnel michaelxavier.net PUT -t 4 --put-full-path -v"}
+cfg = defaultConfiguration { deployCommand = "cd _site && find * -type f -print | s3funnel michaelxavier.net PUT -t 4 --put-full-path -v"}
