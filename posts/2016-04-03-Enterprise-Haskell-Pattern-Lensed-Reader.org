@@ -1,0 +1,270 @@
+---
+title: Enterprise Haskell Pattern: Lensed Reader
+---
+
+Recently I've gotten some feedback from a non-Haskelling colleague
+that from their perspective, the Haskell community does not discuss
+design patterns very often. One one hand, I do feel that functional
+programming languages are not as fertile of a breeding ground for
+patterns as OOP languages. I suspect that languages that tend towards
+heavy usage of "nouns" also tend towards heirarchical thinking and
+classification.
+
+But this is a bit of a cop out. We do use pattern in Haskell. About a
+year and a half ago I went from being a hobbyist Haskeller to a
+full-time Haskell developer. This was my first opportunity to see
+"real" Haskell code in the wild. I remember having the same worries
+before using Haskell in my day job that I would immediately run into
+problems that would require a pattern I didn't know. While I think
+these worries were *definitely* overblown, I'd like to discuss some of
+the techniques I've picked up in the hopes that other Haskellers
+looking to use Haskell in "enterprise" software at some point can at
+least have a jumping off point.
+
+This article will be discussing the "Lensed Reader" pattern.
+
+* The Precursor: ReaderT-based Transformer Stack
+  First and foremost, not long after having the idea to write about
+  this pattern, I came across a wonderful talk that covers many of the
+  points. If you prefer learning through videos, I highly recommend
+  [[https://www.youtube.com/watch?v=GZPup5Iuaqw][Next Level MTL by George Wilson]].
+
+  Most applications I've worked need a big piece of read-only
+  state. Things you'll commonly find in this state object are:
+
+  - Database connection pools
+  - Application configuration
+  - Logging environment
+
+  A =ReaderT=-based monad transformer is usually perfect for this. For
+  things like logging environment you may want to add namespaces or
+  pause logging from time to time, but thankfully, =MonadReader=
+  implementations provide a [[http://haddock.stackage.org/nightly-2016-05-13/mtl-2.2.1/Control-Monad-Reader.html#g:1][=local=]] combinator which temporarily
+  modifies the reader context and restores it automatically. I usually
+  end up defining a newtype transformer stack at the heart of my
+  application. *Its important to use a newtype wrapper to define
+  instances for your stack without resorting to orphaned
+  instances*. It'll end up looking something like this:
+
+  #+BEGIN_SRC haskell
+    {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+    import Control.Monad.Reader
+
+    data AppState = AppState -- ..
+
+    newtype AppT m a = AppT { unAppT :: ReaderT AppState m a}
+                     deriving ( Functor
+                              , Applicative
+                              , Monad
+                              , MonadIO
+                              , MonadReader AppState)
+
+    runAppT :: AppState -> AppT m a -> m a
+    runAppT s m = runReaderT (unAppT m) s
+  #+END_SRC
+
+  A couple of quick notes if any of this looks unfamiliar:
+
+  - =GeneralizedNewtypeDeriving= Lets us piggyback on ReaderT's
+    instances. By and large, if =ReaderT r m a= has an instance, our
+    stack can get it without any boilerplate. If we need a customized
+    instance, we're free to write it ourselves.
+  - =runAppT= can be read in the following order:
+    1. =unAppT= unwraps your =AppT m a= to a plain =ReaderT AppState m a=.
+    2. =runReaderT= further unwraps it to =AppState -> m a=
+    3. We pass in the =AppState= and get an =m a=.
+
+* Baby's First Whitelabel App
+  Now we're going to set up a real rinky-dink, useless app to
+  demonstrate the technique. All our app can do is log. And we
+  *obviously* want to be able to license this groundbreaking tech to
+  any outfit willing to pay, so we'll be able to configure the app to
+  have a configurable name.
+
+  #+BEGIN_SRC haskell
+    data Config = Config {
+          companyName :: String
+        }
+
+    data AppState = AppState {
+          asConfig :: Config
+        , asLogger :: String -> IO ()
+        }
+  #+END_SRC
+
+  Cool! Now we can define some helper functions we'll need in our app:
+
+  #+BEGIN_SRC haskell
+    logMsg :: String -> AppT IO ()
+    logMsg msg = do
+      logger <- asks asLogger
+      logger msg
+
+    getCompanyName :: AppT IO String
+    getCompanyName = asks (companyName . asConfig)
+  #+END_SRC
+
+  All this looks great, but there's a problem. These functions are
+  very *specific* about the monad they run in. Sure, you can log a
+  message and get the company name in =AppT IO=, but you can make due
+  with a lot less. As Haskellers, we like functions to be generic
+  because they communicate the capabilities they require and thus
+  shrink the solution space. No cards up the sleeve.
+
+  Also, when you're specific about your monad stack, you have to throw
+  in lots of =lifts= when you try to use those functions from deeper
+  in a stack. For instance, say we were using =EitherT= to encapsulate
+  some operation that could fail and mix it in with our app's
+  operations.
+
+  #+BEGIN_SRC haskell
+    import Control.Monad.Trans.Either
+
+    -- | Try to download an update for the software
+    tryUpdate :: IO (Either String ())
+    tryUpdate = return (Left "Psych! Thats the wrong number!")
+
+    update :: EitherT String (AppT IO) ()
+    update = do
+      EitherT tryUpdate -- will abort if there's an error, which there will be
+      lift (logMsg "Update complete")
+  #+END_SRC
+
+  Yuck. Lifting. What if we are a few more layers deep in a monad
+  transformer stack? What if we refactored some of this code somewhere
+  else in the stack? We constantly have to keep track of how many
+  lifts we'll need to do. What would be nicer is to say that logging
+  and company name can be accessed wherever you have access to AppState?
+
+* Use the MTL!
+
+  #+BEGIN_SRC haskell
+    import Control.Monad.IO.Class
+
+    logMsg :: (MonadIO m, MonadReader AppState m) => String -> m ()
+    logMsg msg = do
+      logger <- asks asLogger
+      liftIO (logger msg)
+
+    getCompanyName :: (MonadReader AppState m) => m String
+    getCompanyName = asks (companyName . asConfig)
+
+    update :: (MonadIO m, MonadReader AppState m) => EitherT String m ()
+    update = do
+      EitherT (liftIO tryUpdate) -- will abort if there's an error, which there will be
+      logMsg "Update complete"
+  #+END_SRC
+
+  Great! Here's what we got:
+  - =logMsg= will run in any monad that has access to AppState and can
+    run IO. These constraints act like capabilities and we only ask
+    for what we need. We could easily create an alternative
+    transformer stack in test that satisfied these constraints.
+  - =getCompanyName= no longer needs IO, which is great because it has
+    no business doing IO.
+  - No more lifts.
+
+* More Granularity with Lensed Reader
+  In one of my real world applications, I wrote a utility for some
+  analysts. It used the large =AppState= like record to generate a
+  report. Much to my dismay, I found the analysts didn't use it
+  because they didn't have the databases (like PostgreSQL and Redis)
+  the normal app needed, so when the app loaded up that =AppState=,
+  the connection pools failed to establish.
+
+  The actual task this tool was performing didn't really need
+  databases. It just needed the config. If all my code was using
+  =MonadReader AppState m=, then everything would require the whole
+  =AppState=, even if it wasn't going to use the whole thing. The
+  solution was to break down =AppState= into just what I needed. So I
+  used classy lenses.
+
+  #+BEGIN_SRC haskell
+    {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+    import Control.Monad.Reader
+
+    data Config = Config {
+          _companyName :: String
+        }
+
+
+    data AppState = AppState {
+          _asConfig :: Config
+        , _asLogger :: String -> IO ()
+        }
+
+    makeLenses ''AppState
+    makeClassy ''Config
+
+    instance HasConfig AppState where
+      config = asConfig
+  #+END_SRC
+
+  That =makeClassy= gives us something like this:
+
+  #+BEGIN_SRC haskell
+    class HasConfig a where
+      config :: Lens' a Config
+      companyName :: Lens' a String
+
+    instance HasConfig Config where -- ...
+  #+END_SRC
+
+  In other words, we now have a way to specify data types that contain
+  =Config=. Note that =companyName= has a default implementation that
+  pulls it off of =Config=. I've heard this type of abstraction
+  refered to as a "seam". It is a line in the fabric of the code that
+  can be easily opened up and modified if need be.
+
+  The final piece of the puzzle is =view= from lens, which is just
+  like =asks= from =MonadReader= but it takes a lens.
+
+  Now we can have:
+
+  #+BEGIN_SRC haskell
+    getCompanyName :: (MonadReader r m, HasConfig r) => m String
+    getCompanyName = view (config . companyName)
+  #+END_SRC
+
+  Take care to note that lenses compose in the opposite direction of
+  functions, so we access =config= first, then =companyName= from
+  there. Now, in a reporting function, we can be specific about what
+  context each function needs and hook it up to a lighter
+  context or even a totally different transformer stack.
+
+  #+BEGIN_SRC haskell
+    heavyReport :: (MonadReader AppState m) => m String
+    heavyReport = do
+      cn <- getCompanyName
+      return (cn ++ " is the best company!")
+
+
+    lightReport :: (MonadReader r m, HasConfig r) => m String
+    lightReport = do
+      cn <- getCompanyName
+      return (cn ++ " is the best company!")
+
+    runReport :: Config -> String
+    runReport = runReader lightReport
+  #+END_SRC
+
+  Check that out! We didn't need =AppT= or =IO=. =lightReport= is just
+  as happy being used in a minimal =Reader= as it is in our official
+  =AppT= monad.
+
+* tl;dr
+  - Create "classy" lenses for your app's state type and any
+    subcomponents of it that you are likely to need to access
+    independently. Don't go too crazy on this. Try to observe [[https://en.wikipedia.org/wiki/You_aren%2527t_gonna_need_it][YAGNI]].
+  - Use constraints throughout the code instead of concrete
+    transformer stacks. You only end up specifying the stack near
+    =main= where you actually run the thing.
+  - Try to use the minimal set of constraints needed for your
+    functions. Low-level functions end up with smaller sets of
+    constraints. Larger ones accumulate the combined constraints. It
+    can be a bit of a pain having to write out constraints but on the
+    flip side, it is nice to look at a function and see exactly what
+    capabilities are required to implement it. If your function needs
+    a =Config=, it carries =(MonadReader r m, HasConfig r)=. If it
+    doesn't have that, GHC will give you a type error and tell you
+    exactly what constraints you're missing!
