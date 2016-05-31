@@ -99,7 +99,7 @@ h1.title {
 }
 
 h1.title a {
-  text-decoration: none;  
+  text-decoration: none;
   /*color: #000000;*/
 }
 
@@ -148,4 +148,8 @@ li.post, #article .post {
 blockquote {
     font-style: italic;
     color: #808080;
+}
+
+p {
+    line-height: 1.5em;
 }
