@@ -8,20 +8,21 @@ design patterns very often. One one hand, I do feel that functional
 programming languages are not as fertile of a breeding ground for
 patterns as OOP languages. I suspect that languages that tend towards
 heavy usage of "nouns" also tend towards heirarchical thinking and
-classification.
+classification. Who knows?
 
-But this is a bit of a cop out. We do use pattern in Haskell. About a
+But this is a bit of a cop out. We do use patterns in Haskell. About a
 year and a half ago I went from being a hobbyist Haskeller to a
-full-time Haskell developer. This was my first opportunity to see
+full-time Haskeller. This was my first opportunity to see
 "real" Haskell code in the wild. I remember having the same worries
 before using Haskell in my day job that I would immediately run into
 problems that would require a pattern I didn't know. While I think
 these worries were *definitely* overblown, I'd like to discuss some of
 the techniques I've picked up in the hopes that other Haskellers
-looking to use Haskell in "enterprise" software at some point can at
+looking to use Haskell in "enterprise" software can at
 least have a jumping off point.
 
-This article will be discussing the "Lensed Reader" pattern.
+This article will be discussing what I've called the "Lensed Reader"
+pattern.
 
 * The Precursor: ReaderT-based Transformer Stack
   First and foremost, not long after having the idea to write about
@@ -29,7 +30,7 @@ This article will be discussing the "Lensed Reader" pattern.
   points. If you prefer learning through videos, I highly recommend
   [[https://www.youtube.com/watch?v=GZPup5Iuaqw][Next Level MTL by George Wilson]].
 
-  Most applications I've worked need a big piece of read-only
+  Most applications I've worked on need a big piece of read-only
   state. Things you'll commonly find in this state object are:
 
   - Database connection pools
@@ -37,14 +38,15 @@ This article will be discussing the "Lensed Reader" pattern.
   - Logging environment
 
   A =ReaderT=-based monad transformer is usually perfect for this. For
-  things like logging environment you may want to add namespaces or
-  pause logging from time to time, but thankfully, =MonadReader=
+  things like your logging environment you may want to add namespaces
+  or pause logging from time to time, but thankfully, =MonadReader=
   implementations provide a [[http://haddock.stackage.org/nightly-2016-05-13/mtl-2.2.1/Control-Monad-Reader.html#g:1][=local=]] combinator which temporarily
-  modifies the reader context and restores it automatically. I usually
-  end up defining a newtype transformer stack at the heart of my
-  application. *Its important to use a newtype wrapper to define
+  modifies the reader context and restores it automatically, so you
+  don't need to necessarily resort to =MonadState=. I usually end up
+  defining a newtype transformer stack at the heart of my
+  application. Its important to use a newtype wrapper to define
   instances for your stack without resorting to orphaned
-  instances*. It'll end up looking something like this:
+  instances. It'll end up looking something like this:
 
   #+BEGIN_SRC haskell
     {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -65,7 +67,7 @@ This article will be discussing the "Lensed Reader" pattern.
 
   A couple of quick notes if any of this looks unfamiliar:
 
-  - =GeneralizedNewtypeDeriving= Lets us piggyback on ReaderT's
+  - =GeneralizedNewtypeDeriving= lets us piggyback on =ReaderT='s
     instances. By and large, if =ReaderT r m a= has an instance, our
     stack can get it without any boilerplate. If we need a customized
     instance, we're free to write it ourselves.
@@ -107,13 +109,20 @@ This article will be discussing the "Lensed Reader" pattern.
   All this looks great, but there's a problem. These functions are
   very *specific* about the monad they run in. Sure, you can log a
   message and get the company name in =AppT IO=, but you can make due
-  with a lot less. As Haskellers, we like functions to be generic
-  because they communicate the capabilities they require and thus
-  shrink the solution space. No cards up the sleeve.
+  with a lot less. Its also a code smell that =getCompanyName= has IO
+  in its type because it isn't even doing any IO. There's virtue in
+  generic functions in Haskell because they communicate the
+  capabilities they require and thus shrink the solution space. No
+  cards hiding in the sleeve as it were. Put another way, you can hide
+  a hell of a lot in =IO=. If =IO= in a function is any =m= that
+  implements =Monad=, then even if it resolves to =IO= in the end, we
+  can be sure that this particular function doesn't avail itself of
+  the evils of =IO=.
 
   Also, when you're specific about your monad stack, you have to throw
   in lots of =lifts= when you try to use those functions from deeper
-  in a stack. For instance, say we were using =EitherT= to encapsulate
+  in a stack. Its like having a home appliance that only works on the
+  2nd floor. For instance, say we were using =EitherT= to encapsulate
   some operation that could fail and mix it in with our app's
   operations.
 
@@ -127,13 +136,13 @@ This article will be discussing the "Lensed Reader" pattern.
     update :: EitherT String (AppT IO) ()
     update = do
       EitherT tryUpdate -- will abort if there's an error, which there will be
-      lift (logMsg "Update complete")
+      lift (logMsg "Update complete") -- never gonna happen
   #+END_SRC
 
   Yuck. Lifting. What if we are a few more layers deep in a monad
   transformer stack? What if we refactored some of this code somewhere
   else in the stack? We constantly have to keep track of how many
-  lifts we'll need to do. What would be nicer is to say that logging
+  lifts we'll need to do. Wouldn't it be nicer is to say that logging
   and company name can be accessed wherever you have access to AppState?
 
 * Use the MTL!
@@ -156,28 +165,32 @@ This article will be discussing the "Lensed Reader" pattern.
   #+END_SRC
 
   Great! Here's what we got:
+  - =MonadReader AppState m= says in this monad, we could call =ask=
+    and get an =AppState=. =asks= lets us refine that a bit with a
+    selector function to just grab a piece of the state.
   - =logMsg= will run in any monad that has access to AppState and can
     run IO. These constraints act like capabilities and we only ask
     for what we need. We could easily create an alternative
     transformer stack in test that satisfied these constraints.
   - =getCompanyName= no longer needs IO, which is great because it has
     no business doing IO.
-  - No more lifts.
+  - No more lifts!
 
 * More Granularity with Lensed Reader
   In one of my real world applications, I wrote a utility for some
   analysts. It used the large =AppState= like record to generate a
-  report. Much to my dismay, I found the analysts didn't use it
-  because they didn't have the databases (like PostgreSQL and Redis)
-  the normal app needed, so when the app loaded up that =AppState=,
-  the connection pools failed to establish.
+  report. Much to my dismay, I found the analysts were avoiding using
+  it because they didn't have the databases (like PostgreSQL and
+  Redis) the normal app needed, so when the app loaded up that
+  =AppState=, the connection pools failed to establish and the whole
+  thing crashed.
 
-  The actual task this tool was performing didn't really need
-  databases. It just needed the config. If all my code was using
-  =MonadReader AppState m=, then everything would require the whole
-  =AppState=, even if it wasn't going to use the whole thing. The
-  solution was to break down =AppState= into just what I needed. So I
-  used classy lenses.
+  The analysts were being reasonable. The actual task this tool was
+  performing didn't really need databases. It just needed the
+  config. If all my code was using =MonadReader AppState m=, then
+  everything would require the whole =AppState=, even if it wasn't
+  going to use the whole thing. The solution I arrived at was to break
+  down =AppState= into just what I needed. So I used classy lenses.
 
   #+BEGIN_SRC haskell
     {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -255,7 +268,11 @@ This article will be discussing the "Lensed Reader" pattern.
 * tl;dr
   - Create "classy" lenses for your app's state type and any
     subcomponents of it that you are likely to need to access
-    independently. Don't go too crazy on this. Try to observe [[https://en.wikipedia.org/wiki/You_aren%2527t_gonna_need_it][YAGNI]].
+    independently. Don't go too crazy on this. Try to observe
+    [[https://en.wikipedia.org/wiki/You_aren%2527t_gonna_need_it][YAGNI]]. It isn't a huge deal to take some existing code and break
+    up big chunks of state into smaller ones as you see fit. The great
+    thing is that the type system will guide you as to how you'll need
+    to update your type signatures throughout your application.
   - Use constraints throughout the code instead of concrete
     transformer stacks. You only end up specifying the stack near
     =main= where you actually run the thing.
@@ -268,3 +285,8 @@ This article will be discussing the "Lensed Reader" pattern.
     a =Config=, it carries =(MonadReader r m, HasConfig r)=. If it
     doesn't have that, GHC will give you a type error and tell you
     exactly what constraints you're missing!
+  - I've noticed that if you configure your projects with =-Wall
+    -Werror= (and I strongly recommend that you do), GHC 8.0 will warn
+    you about unnecessary constraints, so as your code evolves, if
+    constraints stop being necessary, GHC will remind you to drop
+    them!
