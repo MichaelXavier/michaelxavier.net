@@ -4,7 +4,7 @@ title: Enterprise Haskell Pattern: Lensed Reader
 
 Recently I've gotten some feedback from a non-Haskelling colleague
 that from their perspective, the Haskell community does not discuss
-design patterns very often. One one hand, I do feel that functional
+design patterns very often. On one hand, I do feel that functional
 programming languages are not as fertile of a breeding ground for
 patterns as OOP languages. I suspect that languages that tend towards
 heavy usage of "nouns" also tend towards heirarchical thinking and
