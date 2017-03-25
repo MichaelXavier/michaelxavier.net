@@ -1,5 +1,5 @@
 ---
-title: RubyCheck 2: Electric Boogaloo
+title: "RubyCheck 2: Electric Boogaloo"
 categories: ruby,shell scripting
 ---
 

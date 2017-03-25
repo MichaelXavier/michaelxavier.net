@@ -1,5 +1,5 @@
 ---
-title: Ruby Tip: Return Explicitly From Block
+title: "Ruby Tip: Return Explicitly From Block"
 categories: ruby,tip
 ---
 

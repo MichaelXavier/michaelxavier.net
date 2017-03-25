@@ -1,5 +1,5 @@
 ---
-title: Announcing Vigilance: An Extensible Dead Man's Switch System
+title: "Announcing Vigilance: An Extensible Dead Man's Switch System"
 categories: haskell, projects
 ---
 

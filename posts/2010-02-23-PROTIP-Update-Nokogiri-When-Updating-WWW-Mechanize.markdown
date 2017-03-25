@@ -1,5 +1,5 @@
 ---
-title: PROTIP: Update Nokogiri When Updating WWW::Mechanize
+title: "PROTIP: Update Nokogiri When Updating WWW::Mechanize"
 categories: ruby,mechanize,scraping
 ---
 

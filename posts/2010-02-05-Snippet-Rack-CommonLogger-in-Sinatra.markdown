@@ -1,5 +1,5 @@
 ---
-title: Snippet: Rack::CommonLogger in Sinatra
+title: "Snippet: Rack::CommonLogger in Sinatra"
 categories: ruby,sinatra,code snippet
 ---
 

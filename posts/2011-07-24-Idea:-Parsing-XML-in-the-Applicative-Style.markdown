@@ -1,5 +1,5 @@
 ---
-title: Idea: Parsing XML in the Applicative Style
+title: "Idea: Parsing XML in the Applicative Style"
 categories: haskell, xml
 ---
 

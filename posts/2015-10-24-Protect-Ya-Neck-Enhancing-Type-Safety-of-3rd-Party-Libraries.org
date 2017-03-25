@@ -1,5 +1,5 @@
 ---
-title: Protect Ya Neck: Enhancing Type Safety of 3rd Party Libraries
+title: "Protect Ya Neck: Enhancing Type Safety of 3rd Party Libraries"
 ---
 
 Over the last few years I've been transitioning most of the software

@@ -1,5 +1,5 @@
 ---
-title: factory_girl on Rails 3: undefined method config
+title: "factory_girl on Rails 3: undefined method config"
 categories: rails,rails3,factory_girl
 ---
 

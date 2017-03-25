@@ -1,5 +1,5 @@
 ---
-title: Enterprise Haskell Pattern: Lensed Reader
+title: "Enterprise Haskell Pattern: Lensed Reader"
 ---
 
 Recently I've gotten some feedback from a non-Haskelling colleague

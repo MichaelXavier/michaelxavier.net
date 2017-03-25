@@ -1,5 +1,5 @@
 ---
-title: Vim Tip: Close All Tabs Except Current
+title: "Vim Tip: Close All Tabs Except Current"
 categories: vim
 ---
 

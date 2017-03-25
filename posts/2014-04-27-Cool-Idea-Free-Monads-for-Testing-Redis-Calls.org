@@ -1,5 +1,5 @@
 ---
-title: Cool Idea: Free Monads for Testing Redis Calls
+title: "Cool Idea: Free Monads for Testing Redis Calls"
 ---
 In my time learning Haskell and working on various open source
 projects, I’ve toyed with using free monads but never really had much

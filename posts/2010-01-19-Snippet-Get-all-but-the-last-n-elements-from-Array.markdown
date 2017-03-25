@@ -1,5 +1,5 @@
 ---
-title: Snippet: Get all but the last n elements from Array
+title: "Snippet: Get all but the last n elements from Array"
 categories: ruby,code snippet
 ---
 
