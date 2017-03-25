@@ -1,0 +1,203 @@
+---
+title: "GHC Type-Level Literals for Pagination"
+---
+
+I recently came up with a pretty nice idea to use type-level
+literals that arrived in GHC 7.10. I hadn't directly used type-level
+literals before so this also served as a pretty gentle introduction to
+them.
+
+* Type-level Naturals
+
+  I don't intend to completely cover type-level literals or type-level
+  naturals here. The Haskell wiki has a [[https://ghc.haskell.org/trac/ghc/wiki/TypeNats][decent jumping off point]] for
+  reference. Here's how I like to think about it:
+
+  Haskell's type system is powerful and only getting more powerful
+  over time. Beyond just letting you define types and checking them as
+  you construct a program, it is also starting to make it easier for
+  the developer to say "Hey GHC, here's some type info. Please
+  remember it because I'm going to need you to reference it later."
+  I do this all the time with phantom types: type variables that have
+  no bearing on the data but can be used for type-level assertions
+  later:
+
+  #+BEGIN_SRC haskell
+    data S3Ref a = S3Ref ObjectKey
+
+    storeOnS3 :: (Serialize a) => S3Ref a -> a -> m ()
+
+    getFromS3 :: (Deserialize a) => S3Ref a -> m (Either DeserializeError a)
+  #+END_SRC
+
+  The above pseudocode gives us a type variable to keep information
+  just for the type system: even though an S3 object key is
+  essentially a piece of text, we let the developer associate it with
+  a type. The compiler will remember that type, assert you don't mix
+  it up with another type and recover it in the implementation to
+  produce the expected value. Pretty neat!
+
+  Type-level naturals are a baby step forward: they let us put natural
+  numbers (positive integers) into the type system and recover them at
+  runtime. You can do a lot of fancy stuff with this ability, but it
+  got me thinking: what common functionality do I deal with that have
+  the concept of a positive integer and how could it benefit from
+  lifting that into the type system?
+
+* Pagination
+
+  I work on web apps in Haskell quite a bit. In pretty much any API or
+  traditional web app I write, I always have some sort of "listing"
+  endpoint: users, products, etc. In most of those cases I have to
+  implement pagination: the ability to get the data 1 page at a time,
+  because there ends up being too much data to reasonably return it
+  all in one request. Simple pagination tends to have 2 components:
+  the page number (1 and onward) and the number of records per-page to
+  return. We'll be discussing per-page in this article because it has
+  some interesting properties:
+
+  1. Per-page must be a positive integer (sound familiar?)
+  2. Per-page must have a limit. If sending a whole table is too
+     costly, we should not let a user do it by setting a too-high
+     per-page count.
+  3. It often makes sense to set the per-page limit on a per-resource
+     basis. If we have a very compact resource or if we know that
+     users need quite a few of them at a time, it may make sense to
+     have a higher limit than a resource where each item is always
+     much larger and more costly to send over the wire.
+
+** First Attempt: Smart-Constructor
+
+   I'm a big fan of smart-constructors. In short, its a technique in
+   Haskell where you do not export the default constructor for a type
+   from the module where you define it. You only export the type and a
+   way to construct it and retrieve its internals. Once you test the
+   constructor thoroughly for correctness, you can be *certain* that
+   any time outside of the module where you see the value that it
+   maintains the invariants you set forth.
+
+   So for per-page we want to make it impossible to set a value too
+   low (0 or lower) or too high. Previously I did this:
+
+   #+BEGIN_SRC haskell
+     module Pagination
+         ( PerPage
+         , perPage
+         , mkPerPage
+         , PerPageError(..)
+         ) where
+
+     newtype PerPage = PerPage
+       { perPage :: Int
+       } deriving (Show, Eq, Ord)
+
+
+     data PerPageError = TooSmall
+                       | TooBig
+                       deriving (Show, Eq)
+
+     mkPerPage :: Int -> Either PerPageError PerPage
+     mkPerPage n
+       | n <= 0 = Left TooSmall
+       | n >= 20 = Left TooBig
+       | otherwise = Right (PerPage n)
+   #+END_SRC
+
+   This is pretty good. It meets our criteria for restricting values
+   but it is inflexible. We cannot specialize it to each use case. In
+   order to do that we'd probably have to:
+
+   1. Write one of these constructors for each different resource. A
+      =UserPerPage=, a =ProductPerPage=, etc. Also, to get that module
+      separation, we'd have to dump all these pagination constructors
+      into a separate module from where we'd use it.
+   2. We could let you specify a limit in the =mkPerPage=
+      constructor. Indeed, you may even end up doing this in option 1
+      to DRY things up. The type would look like =mkPerPage :: Int ->
+      Int -> Either PerPageError PerPage=. That doesn't seem great
+      since it would be easy to screw up the arguments and pass the
+      user-supplied pagination as the limit!
+
+* Improving PerPage with Type-Level Naturals
+
+  What if we could have just one type to deal with pagination and
+  leave the maximum up to the use site? After all, the only time we
+  reference the maximum is once in the constructor. Here's what I came
+  up with:
+
+
+  #+BEGIN_SRC haskell
+     module Pagination
+         ( PerPage
+         , perPage
+         , mkPerPage
+         , PerPageError(..)
+         ) where
+
+     import qualified Data.Proxy as P
+     import qualified GHC.TypeLits as TL
+
+     newtype PerPage (max :: TL.Nat) = PerPage
+       { perPage :: Int
+       } deriving (Show, Eq, Ord)
+
+
+     data PerPageError = TooSmall
+                       | TooBig
+                       deriving (Show, Eq)
+
+     mkPerPage :: (TL.KnownNat max) => Int -> Either PerPageError (PerPage max)
+     mkPerPage n
+       | n <= 0 = Left TooSmall
+       | n >= (fromInteger (TL.natVal (P.Proxy :: P.Proxy max))) = Left TooBig
+       | otherwise = Right (PerPage n)
+  #+END_SRC
+
+  We add a type variable, =max= to our PerPage type. Its like a
+  phantom type because it is not used in the actual data
+  structure. We're asking the compiler to remember =max= because we
+  will use it later. We don't take just any max though, we take a max
+  of type =Nat= which is short for Natural. We say that max can be one
+  of many (in fact, infinite) types that fall under the umbrella of
+  natural numbers.
+
+  In our constructor, we add the constraint =KnownNat=, which is
+  always present for natural numbers. The constraint means that the
+  compiler has remembered *which* natural number is inhabiting =max=
+  and can retrieve it for us whenever we want.
+
+  Lastly, we have =(fromInteger (TL.natVal (P.Proxy :: P.Proxy
+  max)))=. =Proxy= is basically a general purpose type with 1 phantom
+  type variable:
+
+  #+BEGIN_SRC haskell
+    data Proxy a = Proxy
+  #+END_SRC
+
+  It is a handy way to refer to things at the type level when you
+  don't have anything at the value level. =natVal= takes a =Proxy=
+  referring to a known natural number and gives you at the *value
+  level* that number as an =Integer=. Lastly, we use =fromInteger= to
+  convert it from =Integer -> Int=.
+
+  So how do we use this? Let's say we're writing users code and our
+  app decides that 20 is the maximum number of users we can return per
+  page. It would look like this:
+
+  #+BEGIN_SRC haskell
+    type UserPerPage = PerPage 20
+  #+END_SRC
+
+  That's it! We can now specialize any of our user-facing code to
+  safely limit the pagination. If we want a function with unrestricted
+  pagination, say for internal scripts, we can do that too!
+
+  #+BEGIN_SRC haskell
+    -- Anything at the web layer that we don't trust must be limited to 20 per page.
+    untrustedGetUsers :: PageNum -> UserPerPage -> m [User]
+    untrustedGetUsers = internalGetUsers -- internalGetUsers is just a more generalized version of this
+
+    -- We can use this in any code where we're not concerned about fetching too much per page.
+    internalGetUsers :: (TL.KnownNat maxpp) => PageNum -> PerPage maxpp -> m [User]
+    internalGetUsers = error "todo"
+  #+END_SRC
