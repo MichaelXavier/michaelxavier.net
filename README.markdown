@@ -4,8 +4,8 @@ This is the source code to my [blog](http://michaelxavier.net). It is generated
 using [hakyll](http://jaspervdj.be/hakyll/), a static site generator written in
 Haskell.
 
-This code is intended to help anyone looking to build their own site using
-hakyll. Note that most of the code is cobbled together using a *very*
-rudimentary understanding of arrows and plenty of unabashed copying from other
-hakyll-generated sites. To see how they did it, check out these
-[other examples](http://jaspervdj.be/hakyll/examples.html).
+To build it, install nix and direnv. Run `direnv allow` it will
+automatically provision all tools needed for development. From there,
+standard cabal commands will work. For example, you can run `cabal run
+mxnet -- watch --host localhost --port 8000` for a development
+preview.
