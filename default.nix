@@ -82,7 +82,6 @@ let
 
   shell = haskellPkgs.shellFor {
     packages = p: [
-      pkgs.cabal-install
       p.mxnet
     ];
 
@@ -93,6 +92,8 @@ let
       haskellPkgs.ghcid
       haskellPkgs.hpack
       haskellPkgs.cabal-install
+      pkgs.awscli
+      pkgs.fd
     ];
   };
 

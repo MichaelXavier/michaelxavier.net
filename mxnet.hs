@@ -112,5 +112,6 @@ feedConf = FeedConfiguration
 
 
 -------------------------------------------------------------------------------
+-- | cabal run mxnet -- deploy
 cfg :: Configuration
-cfg = defaultConfiguration { deployCommand = "cd _site && find * -type f -print | s3funnel michaelxavier.net PUT -t 4 --put-full-path --insecure -v --put-header=\"Cache-Control:max-age=3600, public\""}
+cfg = defaultConfiguration { deployCommand = "cd _site && fd . --type f --exec aws s3 cp --cache-control=\"Cache-Control:max-age=3600, public\" {} s3://michaelxavier.net/{}"}
