@@ -1,0 +1,11 @@
+-- '.ghc.environment' files interact poorly with Nix.
+write-ghc-environment-files: never
+tests: False
+benchmarks: False
+
+-- This 'cabal.project' file applies to all Haskell packages in this subdirectory.
+packages: ./.
+
+-- Default to the following GHC options for all packages built by 'cabal-install'.
+package *
+  ghc-options: -j +RTS -A128m -n2m -RTS

@@ -10,3 +10,5 @@ assets/**/*.*
 cabal.sandbox.config
 .envrc
 .stack-work/
+dist-newstyle
+.direnv
